@@ -22,7 +22,12 @@ export async function init(client) {
   });
 
   await rest.put(
-    Routes.applicationGuildCommands(process.env.BOT_ID, process.env.GUILD_ID),
+    process.env.GUILD_ID
+      ? Routes.applicationGuildCommands(
+          process.env.BOT_ID,
+          process.env.GUILD_ID
+        )
+      : Routes.applicationCommands(process.env.BOT_ID),
     {
       body: commandArray,
     }
