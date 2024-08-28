@@ -214,18 +214,14 @@ function getFaction(factionId) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default {
+export {
   init,
-
   fetchCards,
   fetchCard,
   fetchPrinting,
   fetchData,
   fetchDataAsMap,
-
   getClosestCard,
-
   getCardType,
-
   getFaction,
 };

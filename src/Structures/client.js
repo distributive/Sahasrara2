@@ -13,6 +13,14 @@ import {
   Collection,
   ActivityType,
 } from "discord.js";
+import { init as initCommands } from "./commands.js";
+import { init as initHandler } from "./handler.js";
+import { init as initEvents } from "./events.js";
+import { init as initNetrunner } from "./../Netrunner/api.js";
+import { init as initONR } from "./../ONR/api.js";
+
+///////////////////////////////////////////////////////////////////////////////
+
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds,
@@ -28,9 +36,7 @@ const client = new Client({
   },
 });
 
-///////////////////////////////////////////////////////////////////////////////
-
-client.commands = new Collection(); // Persistent collection of bot commands
+client.commands = new Collection();
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -38,16 +44,16 @@ export async function start(config) {
   client.config = config;
 
   console.log("loading commands...");
-  await require("./commands.js").init(client);
+  await initCommands(client);
   console.log("loading handler...");
-  await require("./handler.js").init(client);
+  await initHandler(client);
   console.log("loading events...");
-  await require("./events.js").init(client);
+  await initEvents(client);
 
   console.log("initialising nrdb api...");
-  await require("./../Netrunner/api.js").default.init();
+  await initNetrunner();
   console.log("initialising onr api...");
-  await require("./../ONR/api.js").default.init();
+  await initONR();
 
   await client.login(process.env.TOKEN);
 }

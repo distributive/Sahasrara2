@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const removeAccents = require("remove-accents");
+import removeAccents from "remove-accents";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -17,12 +17,6 @@ const removeAccents = require("remove-accents");
  * @param {string} input The string to normalise.
  * @return {string} The normalised string.
  */
-function normalise(input) {
+export function normalise(input) {
   return removeAccents(input).toLowerCase();
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-module.exports = {
-  normalise,
-};

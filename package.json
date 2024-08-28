@@ -3,6 +3,7 @@
   "version": "4.0.0-rebuild",
   "description": "A template discord bot with slash commands",
   "main": "index.js",
+  "type": "module",
   "dependencies": {
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",

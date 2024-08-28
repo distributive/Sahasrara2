@@ -181,12 +181,11 @@ function printingToFooter(printing) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default {
+export {
   createPrintingEmbed,
   createPrintingImageEmbed,
   createPrintingFlavourEmbed,
   createPrintingBanlistEmbed,
   createPrintingIndexOutOfBoundsEmbed,
-
   createDeprecationEmbed,
 };

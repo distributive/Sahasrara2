@@ -91,8 +91,4 @@ function getCardImage(card) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default {
-  init,
-  getClosestCard,
-  getCardImage,
-};
+export { init, getClosestCard, getCardImage };

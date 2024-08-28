@@ -25,7 +25,7 @@ import {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export async function execute(message) {
+export default async function execute(message) {
   const { author, content } = message;
 
   // Ignore bot/empty messages

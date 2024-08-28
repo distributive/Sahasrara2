@@ -7,7 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export async function execute(interaction) {
+export default async function execute(interaction) {
   const { client, commandName } = interaction;
   const command = client.commands.get(commandName);
 

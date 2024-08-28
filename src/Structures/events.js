@@ -7,17 +7,20 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { readdirSync } from "node:fs";
+import interactionCreate from "./../Events/interactionCreate.js";
+import messageCreate from "./../Events/messageCreate.js";
+import ready from "./../Events/ready.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
 export async function init(client) {
-  const PATH = process.cwd() + "/src/Events";
-  const events = readdirSync(PATH);
-  for (let event of events) {
-    event = event.split(".")[0];
-    client.on(event, async (...args) => {
-      await require(`${PATH}/${event}.js`).execute(...args);
-    });
-  }
+  client.on("interactionCreate", async (...args) => {
+    interactionCreate(...args);
+  });
+  client.on("messageCreate", async (...args) => {
+    messageCreate(...args);
+  });
+  client.on("ready", async (...args) => {
+    ready(...args);
+  });
 }

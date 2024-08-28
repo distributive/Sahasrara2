@@ -152,9 +152,4 @@ function formatText(text) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default {
-  factionToColor,
-  factionToEmote,
-  factionToImage,
-  formatText,
-};
+export { factionToColor, factionToEmote, factionToImage, formatText };

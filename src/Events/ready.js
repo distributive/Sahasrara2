@@ -7,6 +7,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export async function execute(client) {
+export default async function execute(client) {
   console.log(`${client.user.tag} online •`);
 }

@@ -11,7 +11,7 @@ import { EmbedBuilder } from "discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export const data = {
+const data = {
   name: "side",
   description: "picks a side at random",
   dm_permissions: "0",
@@ -24,7 +24,7 @@ export const data = {
     },
   ],
 };
-export async function execute(interaction, client) {
+async function execute(interaction, client) {
   const opponent = interaction.options.getString("opponent");
   const userIsCorp = Math.floor(Math.random() * 2) == 0;
   const color = userIsCorp
@@ -49,3 +49,7 @@ export async function execute(interaction, client) {
 
   await interaction.reply({ embeds: [embed] });
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+export default { data, execute };

@@ -101,8 +101,4 @@ function cardToFooter(card) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default {
-  createCardEmbed,
-  createCardImageEmbed,
-  createCardFlavourEmbed,
-};
+export { createCardEmbed, createCardImageEmbed, createCardFlavourEmbed };

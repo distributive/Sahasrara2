@@ -11,12 +11,12 @@ import { EmbedBuilder } from "discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export const data = {
+const data = {
   name: "mark",
   description: "identifies your mark",
   dm_permissions: "0",
 };
-export async function execute(interaction, client) {
+async function execute(interaction, client) {
   const random = Math.floor(Math.random() * 3);
   const server = random == 0 ? "HQ" : random == 1 ? "R&D" : "Archives";
   const color =
@@ -33,3 +33,7 @@ export async function execute(interaction, client) {
 
   await interaction.reply({ embeds: [embed] });
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+export default { data, execute };

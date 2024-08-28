@@ -7,21 +7,15 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { readdirSync } from "node:fs";
+import Help from "./../Commands/help.js";
+import Mark from "./../Commands/mark.js";
+import Side from "./../Commands/side.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
 export async function init(client) {
   const commands = client.commands;
-  const PATH = process.cwd() + "/src/Commands";
-
-  const folders = readdirSync(PATH);
-  for (let dir of folders) {
-    const folder = readdirSync(`${PATH}/${dir}`);
-
-    for (let file of folder) {
-      const cmd = await require(`${PATH}/${dir}/${file}`);
-      commands.set(cmd.data.name, cmd);
-    }
-  }
+  commands.set(Help.data.name, Help);
+  commands.set(Mark.data.name, Mark);
+  commands.set(Side.data.name, Side);
 }

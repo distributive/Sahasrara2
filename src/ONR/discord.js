@@ -46,7 +46,4 @@ function formatText(text) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default {
-  rarityToColor,
-  formatText,
-};
+export { rarityToColor, formatText };

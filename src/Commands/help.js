@@ -11,7 +11,7 @@ import { EmbedBuilder } from "discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export const data = {
+const data = {
   name: "help",
   description: "shows information about a specific command",
   dm_permissions: "0",
@@ -24,7 +24,7 @@ export const data = {
     },
   ],
 };
-export async function execute(interaction, client) {
+async function execute(interaction, client) {
   const commandName = interaction.options.getString("command_name");
   let titleText,
     descriptionText,
@@ -77,3 +77,7 @@ export async function execute(interaction, client) {
 
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }
+
+///////////////////////////////////////////////////////////////////////////////
+
+export default { data, execute };
