@@ -1,2 +1,2 @@
-require('dotenv').config()
-require("./src/Structures/client.js").start();
+require("dotenv").config(); // Load .env
+require("./src/Structures/client.js").start(); // Start the bot

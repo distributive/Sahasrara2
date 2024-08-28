@@ -1,38 +1,62 @@
-const { EmbedBuilder } = require("discord.js");
-const api = require("./api.js");
-const discord = require("./discord.js");
+/**
+ * A module for building ONR-based Discord embeds.
+ *
+ * @file   This files defines the ONR/embed module.
+ * @since  1.0.0
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
-// PUBLIC
 
+import { EmbedBuilder } from "discord.js";
+import { getCardImage } from "./api.js";
+import { rarityToColor, formatText } from "./discord.js";
+
+///////////////////////////////////////////////////////////////////////////////
+
+/**
+ * @param {Object} card An ONR card.
+ * @return {Object} A Discord embed displaying the title, game text, stats, and image of that card.
+ */
 function createCardEmbed(card) {
   return new EmbedBuilder()
-    .setColor(discord.rarityToColor(card.rarity))
+    .setColor(rarityToColor(card.rarity))
     .setTitle(card.title)
     .setDescription(cardToEmbedBody(card))
-    .setThumbnail(api.getCardImage(card))
+    .setThumbnail(getCardImage(card))
     .setFooter({ text: cardToFooter(card) });
 }
 
+/**
+ * @param {Object} card An ONR card.
+ * @return {Object} A Discord embed displaying the title and image of that card.
+ */
 function createCardImageEmbed(card) {
   return new EmbedBuilder()
-    .setColor(discord.rarityToColor(card.rarity))
+    .setColor(rarityToColor(card.rarity))
     .setTitle(card.title)
-    .setImage(api.getCardImage(card));
+    .setImage(getCardImage(card));
 }
 
+/**
+ * @param {Object} card An ONR card.
+ * @return {Object} A Discord embed displaying the title and flavour text of that card (if any).
+ */
 function createCardFlavourEmbed(card) {
-  let flavourText = card.flavor ? card.flavor : "`Card has no flavour text.`"
+  let flavourText = card.flavor ? card.flavor : "`Card has no flavour text.`";
   return new EmbedBuilder()
-    .setColor(discord.rarityToColor(card.rarity))
+    .setColor(rarityToColor(card.rarity))
     .setTitle(card.title)
     .setDescription(flavourText)
-    .setThumbnail(api.getCardImage(card))
+    .setThumbnail(getCardImage(card));
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 
+/**
+ * @param {Object} card An ONR card.
+ * @return {string} A multiline string containing the stats and game text of the printing.
+ */
 function cardToEmbedBody(card) {
   let type = card.type;
   if (card.subtypes) {
@@ -42,7 +66,10 @@ function cardToEmbedBody(card) {
   let stats = "";
   if (card.cost != null) {
     stats += " • ";
-    stats += (card.side_code != "corp" || card.card_type_id	== "operation") ? "Cost: " : "Rez: ";
+    stats +=
+      card.side_code != "corp" || card.card_type_id == "operation"
+        ? "Cost: "
+        : "Rez: ";
     stats += card.cost;
   }
   if (card.strength != null) {
@@ -58,20 +85,24 @@ function cardToEmbedBody(card) {
     stats += ` • MU: ${card.memory_cost}`;
   }
 
-  let header = `**${type}${stats}**`
-  let body = discord.formatText(card.text);
+  let header = `**${type}${stats}**`;
+  let body = formatText(card.text);
 
   return header + "\n" + body;
 }
 
+/**
+ * @param {Object} card An ONR card.
+ * @return {string} A single line containing the set and rarity of that card.
+ */
 function cardToFooter(card) {
   return `${card.set} • ${card.rarity}`;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
-module.exports = {
+export default {
   createCardEmbed,
   createCardImageEmbed,
   createCardFlavourEmbed,
-}
+};
