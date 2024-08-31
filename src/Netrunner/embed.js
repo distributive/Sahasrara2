@@ -8,8 +8,13 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import { EmbedBuilder } from "discord.js";
-import { getCardType, getFaction } from "./api.js";
-import { factionToColor, factionToImage, formatText } from "./discord.js";
+import * as api from "./api.js";
+import {
+  factionToColor,
+  factionToImage,
+  formatText,
+  legalityToSymbol,
+} from "./discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -17,7 +22,7 @@ import { factionToColor, factionToImage, formatText } from "./discord.js";
  * @param {Object} printing A card printing.
  * @return {Object} A Discord embed displaying the title, game text, stats, and image of the card/printing.
  */
-function createPrintingEmbed(printing) {
+export function createPrintingEmbed(printing) {
   return new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
@@ -34,7 +39,7 @@ function createPrintingEmbed(printing) {
  * @param {Object} printing A card printing.
  * @return {Object} A Discord embed displaying the title and image of the printing.
  */
-function createPrintingImageEmbed(printing) {
+export function createPrintingImageEmbed(printing) {
   return new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
@@ -46,7 +51,7 @@ function createPrintingImageEmbed(printing) {
  * @param {Object} printing A card printing.
  * @return {Object} A Discord embed displaying the title and flavour text of the printing (if any).
  */
-function createPrintingFlavourEmbed(printing) {
+export function createPrintingFlavourEmbed(printing) {
   let flavourText = printing.attributes.flavor
     ? printing.attributes.flavor
     : "`Card has no flavour text.`";
@@ -60,10 +65,87 @@ function createPrintingFlavourEmbed(printing) {
 
 /**
  * @param {Object} printing A card printing.
+ * @param {string=} format A format (optional - default is Standard).
  * @return {Object} A Discord embed displaying banlist history of the card.
  */
-function createPrintingBanlistEmbed(printing) {
-  return {}; // TODO
+export function createPrintingBanlistEmbed(printing, formatId) {
+  if (!formatId) {
+    formatId = "standard";
+  }
+
+  // Get all snapshots in the format
+  const snapshots = api.getFormatSnapshots(formatId);
+
+  // Group snapshots by restriction ID
+  let restrictionToSnapshots = {};
+  snapshots.forEach((snapshot) => {
+    if (!snapshot.attributes.restriction_id) {
+      return; // Ignore null restriction IDs - they mean there was no restriction that snapshot
+    }
+    if (restrictionToSnapshots[snapshot.attributes.restriction_id]) {
+      restrictionToSnapshots[snapshot.attributes.restriction_id].push(snapshot);
+    } else {
+      restrictionToSnapshots[snapshot.attributes.restriction_id] = [snapshot];
+    }
+  });
+
+  // Map each restriction ID to the data we need
+  let hasBeenInPool = false;
+  const rows = Object.keys(restrictionToSnapshots).map((restrictionId) => {
+    const restriction = api.getRestriction(restrictionId);
+    const isCardInPool = restrictionToSnapshots[restrictionId].some(
+      (snapshot) =>
+        api
+          .getCardPool(snapshot.attributes.card_pool_id)
+          .attributes.card_ids.includes(printing.attributes.card_id)
+    );
+    if (isCardInPool) {
+      hasBeenInPool = true;
+    }
+    const legality = isCardInPool
+      ? api.getLegalityUnderRestriction(
+          printing.attributes.card_id,
+          restriction
+        )
+      : hasBeenInPool
+      ? "rotated"
+      : "unreleased";
+    return [legalityToSymbol(legality), restriction.attributes.name];
+  });
+
+  // Simplify sequences of restrictions where the legality was unchanged for more than 3 restrictions
+  let simplifiedRows = [];
+  let i;
+  for (i = 0; i < rows.length; ) {
+    const row = rows[i];
+    simplifiedRows.push(row);
+    let j;
+    for (j = i + 1; j < rows.length && rows[j][0] == row[0]; j++) {}
+    if (j - i > 3) {
+      simplifiedRows.push([
+        row[0],
+        `_unchanged ${j - i - 2} update${j - i - 2 != 1 ? "s" : ""}_`,
+      ]);
+      simplifiedRows.push(rows[j - 1]);
+    } else {
+      for (let k = i + 1; k < j; k++) {
+        simplifiedRows.push(rows[k]);
+      }
+    }
+    i = j;
+  }
+
+  // Convert the rows to strings and concatenate them
+  const restrictionHistory = simplifiedRows
+    .map((row) => `${row[0]} ${row[1]}`)
+    .join("\n");
+
+  return new EmbedBuilder()
+    .setColor(factionToColor(printing.attributes.faction_id))
+    .setTitle(printingToTitle(printing))
+    .setURL(`${process.env.NRDB_URL}card/${printing.id}`)
+    .setDescription(restrictionHistory)
+    .setThumbnail(printing.attributes.images.nrdb_classic.medium);
 }
 
 /**
@@ -71,13 +153,13 @@ function createPrintingBanlistEmbed(printing) {
  * @param {Object} printing The most recent printing of that card.
  * @return {Object} A Discord embed notifying the user that they have attempted to get a non-existent printing of the card.
  */
-function createPrintingIndexOutOfBoundsEmbed(card, printing) {
+export function createPrintingIndexOutOfBoundsEmbed(card, printing) {
   const length = card.attributes.printing_ids.length;
   const error = `\`Index out of bounds! ${
     card.attributes.title
   } has ${length} printing${length != 1 ? "s" : ""}.\``; // TODO: add error module
   return new EmbedBuilder()
-    .setColor(0xff0000) // TODO: add color module
+    .setColor(+process.env.COLOR_ERROR)
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}card/${printing.id}`)
     .setDescription(error)
@@ -89,7 +171,7 @@ function createPrintingIndexOutOfBoundsEmbed(card, printing) {
  *
  * @return {Object} A Discord embed notifying the user that this bot no longer uses plaintext commands.
  */
-function createDeprecationEmbed() {
+export function createDeprecationEmbed() {
   const message =
     "I now use slash commands! To see the new help menu, try `/help`!";
   return new EmbedBuilder()
@@ -116,7 +198,7 @@ function printingToTitle(printing) {
  * @return {string} A multiline string containing the stats and game text of the printing.
  */
 function printingToEmbedBody(printing) {
-  let type = getCardType(printing.attributes.card_type_id).attributes.name;
+  let type = api.getCardType(printing.attributes.card_type_id).attributes.name;
   if (printing.attributes.display_subtypes) {
     type += `: ${printing.attributes.display_subtypes}`;
   }
@@ -173,19 +255,22 @@ function printingToEmbedBody(printing) {
  * @return {string} A single line containing the faction, cycle, set, legality, and printed position of the printing.
  */
 function printingToFooter(printing) {
-  // TODO: add banned/rotated status
-  return `${getFaction(printing.attributes.faction_id).attributes.name} • ${
-    printing.attributes.card_cycle_name
-  } • ${printing.attributes.card_set_name} #${printing.attributes.position}`;
+  const isInPool = api.isCardInCardPool(
+    printing.attributes.card_id,
+    api.getActiveCardPool("standard")
+  );
+  const isBanned = isInPool
+    ? api.getLegalityUnderRestriction(
+        printing.attributes.card_id,
+        api.getActiveRestriction("standard")
+      )
+    : false;
+  const faction = api.getFaction(printing.attributes.faction_id).attributes
+    .name;
+  const cycle = printing.attributes.card_cycle_name;
+  const set = printing.attributes.card_set_name;
+  const cycleSet = cycle == set ? cycle : `${cycle} • ${set}`;
+  const legality = isInPool ? (isBanned ? " (banned)" : "") : " (rotated)";
+  const position = printing.attributes.position;
+  return `${faction} • ${cycleSet}${legality} #${position}`;
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-export {
-  createPrintingEmbed,
-  createPrintingImageEmbed,
-  createPrintingFlavourEmbed,
-  createPrintingBanlistEmbed,
-  createPrintingIndexOutOfBoundsEmbed,
-  createDeprecationEmbed,
-};

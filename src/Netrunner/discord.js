@@ -11,7 +11,7 @@
  * @param {string} factionId The faction's ID.
  * @return {int} The hex code of the faction's color.
  */
-function factionToColor(factionId) {
+export function factionToColor(factionId) {
   let color = process.env.COLOR_ERROR;
   switch (factionId) {
     case "anarch":
@@ -61,7 +61,7 @@ function factionToColor(factionId) {
  * @param {string} factionId The faction's ID.
  * @return {string} The emoji code for that faction's icon.
  */
-function factionToEmote(factionId) {
+export function factionToEmote(factionId) {
   switch (factionId) {
     case "anarch":
       return process.env.EMOJI_ANARCH;
@@ -95,7 +95,7 @@ function factionToEmote(factionId) {
  * @param {string} factionId The faction's ID.
  * @return {string} The image link for that faction's icon.
  */
-function factionToImage(factionId) {
+export function factionToImage(factionId) {
   switch (factionId) {
     case "anarch":
       return process.env.IMAGE_ANARCH;
@@ -125,11 +125,13 @@ function factionToImage(factionId) {
   }
 }
 
+///////////////////////////////////////////////////////////////////////////////
+
 /**
  * @param {string} text Unedited card text from the card API.
  * @return {string} The formatted text with emoji and formatting added.
  */
-function formatText(text) {
+export function formatText(text) {
   return text
     .replace(/<\/?strong>/g, "**")
     .replace(/<\/?em>/g, "*")
@@ -152,4 +154,55 @@ function formatText(text) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export { factionToColor, factionToEmote, factionToImage, formatText };
+/**
+ * Maps legalities to emoji. Also includes "unreleased" and "rotated".
+ *
+ * @param {string} legality A card's legality.
+ * @return {string} An emoji representing the legality.
+ */
+export function legalityToSymbol(legality) {
+  switch (legality) {
+    case "legal":
+      return "✅";
+    case "rotated":
+      return "🔁";
+    case "unreleased":
+      return "🔒";
+    case "banned":
+      return "🚫";
+    case "restricted":
+      return "🦄";
+    case "global_penality":
+      return "*️⃣";
+  }
+
+  // If nothing else matches the legality should be in the format <legality>_n
+  const splits = legality.split("_");
+  const num = splits[splits.length - 1];
+
+  // Currently only 1-3 are required, but future proofing is good
+  switch (num) {
+    case "1":
+      return "1️⃣";
+    case "2":
+      return "2️⃣";
+    case "3":
+      return "3️⃣";
+    case "4":
+      return "4️⃣";
+    case "5":
+      return "5️⃣";
+    case "6":
+      return "6️⃣";
+    case "7":
+      return "7️⃣";
+    case "8":
+      return "8️⃣";
+    case "9":
+      return "9️⃣";
+    case "0":
+      return "0️⃣";
+    default:
+      return "#️⃣";
+  }
+}

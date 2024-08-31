@@ -24,14 +24,34 @@ const DATA = {}; // Persistent data
  * data sets; currently:
  * - Card types
  * - Factions
+ * - Formats
+ * - Card pools
+ * - Restrictions
+ * - Snapshots
  */
-async function init() {
+export async function init() {
   const cardURL = `${process.env.API_URL}cards?page%5Blimit%5D=100&page%5Boffset%5D=0`;
   DATA.cardTitles = await fetchCards(cardURL, (card) =>
     normalise(card.attributes.title)
   );
   DATA.cardTypes = await fetchDataAsMap(`${process.env.API_URL}card_types`);
   DATA.factions = await fetchDataAsMap(`${process.env.API_URL}factions`);
+  DATA.formats = await fetchDataAsMap(`${process.env.API_URL}formats`);
+  DATA.cardPools = await fetchDataAsMap(`${process.env.API_URL}card_pools`);
+  DATA.restrictions = await fetchDataAsMap(
+    `${process.env.API_URL}restrictions`
+  );
+
+  // Split snapshots by format
+  const snapshots = await fetchData(`${process.env.API_URL}snapshots`);
+  DATA.snapshots = {};
+  Object.keys(DATA.formats).forEach((formatId) => {
+    DATA.snapshots[formatId] = snapshots
+      .filter((snapshot) => snapshot.attributes.format_id == formatId)
+      .sort((a, b) =>
+        a.attributes.date_start < b.attributes.date_start ? -1 : 1
+      );
+  });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -44,7 +64,7 @@ async function init() {
  * @param {Function=} mapFunc A function to apply to each card after being fetched (optional).
  * @return {Object[]} An array containing every card object in the API.
  */
-async function fetchCards(url, mapFunc) {
+export async function fetchCards(url, mapFunc) {
   return await fetch(url)
     .then((response) => {
       if (!response.ok) {
@@ -73,7 +93,7 @@ async function fetchCards(url, mapFunc) {
  * @param {string} cardId A card's ID.
  * @return {Object} The card with the given ID from the API.
  */
-async function fetchCard(cardId) {
+export async function fetchCard(cardId) {
   return await fetch(`${process.env.API_URL}cards/${cardId}`)
     .then((response) => {
       if (!response.ok) {
@@ -93,7 +113,7 @@ async function fetchCard(cardId) {
  * @param {string} printingId A printing's ID.
  * @return {Object} The printing with the given ID from the API.
  */
-async function fetchPrinting(printingId) {
+export async function fetchPrinting(printingId) {
   return await fetch(`${process.env.API_URL}printings/${printingId}`)
     .then((response) => {
       if (!response.ok) {
@@ -115,7 +135,7 @@ async function fetchPrinting(printingId) {
  * @param {string} url The URL to fetch the data from.
  * @return {*} The contents of json.data.
  */
-async function fetchData(url) {
+export async function fetchData(url) {
   return await fetch(url)
     .then((response) => {
       if (!response.ok) {
@@ -139,7 +159,7 @@ async function fetchData(url) {
  * @param {string} url The URL to fetch the data from.
  * @return {Object} The reformatted contents of json.data.
  */
-async function fetchDataAsMap(url) {
+export async function fetchDataAsMap(url) {
   const data = await fetchData(url);
   let obj = {};
   if (!data.length && data.length !== 0) {
@@ -168,7 +188,7 @@ async function fetchDataAsMap(url) {
  * @param {string} input A string to find a card match for.
  * @return {Object} The card whose title most closely matches the input.
  */
-async function getClosestCard(input) {
+export async function getClosestCard(input) {
   input = normalise(input);
   const superStrings = DATA.cardTitles.filter((title) => title.includes(input)); // cardTitles has already been normalised
   const leadingStrings = superStrings.filter(
@@ -195,7 +215,7 @@ async function getClosestCard(input) {
  * @param {string} cardTypeId A card type's ID.
  * @return {Object} The corresponding card type.
  */
-function getCardType(cardTypeId) {
+export function getCardType(cardTypeId) {
   return DATA.cardTypes[cardTypeId];
 }
 
@@ -208,20 +228,113 @@ function getCardType(cardTypeId) {
  * @param {string} factionId A faction's ID.
  * @return {Object} The corresponding faction.
  */
-function getFaction(factionId) {
+export function getFaction(factionId) {
   return DATA.factions[factionId];
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Formats
 
-export {
-  init,
-  fetchCards,
-  fetchCard,
-  fetchPrinting,
-  fetchData,
-  fetchDataAsMap,
-  getClosestCard,
-  getCardType,
-  getFaction,
-};
+/**
+ * Gets the format of the given ID from the cache.
+ *
+ * @param {string} formatId A format's ID.
+ * @return {Object} The corresponding format.
+ */
+export function getFormat(formatId) {
+  return DATA.formats[formatId];
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Card pools
+
+/**
+ * Gets the card pool of the given ID from the cache.
+ *
+ * @param {string} cardPoolId A card pool's ID.
+ * @return {Object} The corresponding card pool.
+ */
+export function getCardPool(cardPoolId) {
+  return DATA.cardPools[cardPoolId];
+}
+
+/**
+ * Gets the active card pool of the format with the given ID.
+ *
+ * @param {string} formatId A format's ID.
+ * @return {?Object} That format's active restriction.
+ */
+export function getActiveCardPool(formatId) {
+  return DATA.cardPools[DATA.formats[formatId].attributes.active_card_pool_id];
+}
+
+/**
+ * @param {string} cardId A Netrunner card's ID.
+ * @param {Object} cardPool A card pool.
+ * @return {bool} The legality of the card under the restriction.
+ */
+export function isCardInCardPool(cardId, cardPool) {
+  return cardPool.attributes.card_ids.includes(cardId);
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Restrictions
+
+/**
+ * Gets the format of the given ID from the cache.
+ *
+ * @param {string} restrictionId A restriction's ID.
+ * @return {Object} The corresponding restriction.
+ */
+export function getRestriction(restrictionId) {
+  return DATA.restrictions[restrictionId];
+}
+
+/**
+ * Gets the active restriction of the format with the given ID.
+ *
+ * @param {string} formatId A format's ID.
+ * @return {?Object} That format's active restriction.
+ */
+export function getActiveRestriction(formatId) {
+  return DATA.restrictions[
+    DATA.formats[formatId].attributes.active_restriction_id
+  ];
+}
+
+/**
+ * Gets the legality of a card under the given restriction.
+ *
+ * @param {string} cardId A card ID.
+ * @param {Object} restriction A restriction.
+ * @return {string} The legality of the card under the restriction.
+ */
+export function getLegalityUnderRestriction(cardId, restriction) {
+  const verdicts = restriction.attributes.verdicts;
+  if (verdicts.banned.includes(cardId)) {
+    return "banned";
+  } else if (verdicts.restricted.includes(cardId)) {
+    return "restricted";
+  } else if (verdicts.global_penalty.includes(cardId)) {
+    return "global_penalty";
+  }
+  if (Object.keys(verdicts.points).includes(cardId)) {
+    return "points_" + verdicts.points[cardId];
+  } else if (Object.keys(verdicts.universal_faction_cost).includes(cardId)) {
+    return "universal_faction_cost_" + verdicts.universal_faction_cost[cardId];
+  }
+  return "legal";
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Snapshots
+
+/**
+ * Gets a format's snapshots.
+ *
+ * @param {string} formatId A format's ID.
+ * @return {Object[]} An array of that format's snapshots.
+ */
+export function getFormatSnapshots(formatId) {
+  return DATA.snapshots[formatId];
+}
