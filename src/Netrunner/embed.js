@@ -263,7 +263,7 @@ function printingToFooter(printing) {
     ? api.getLegalityUnderRestriction(
         printing.attributes.card_id,
         api.getActiveRestriction("standard")
-      )
+      ) == "banned"
     : false;
   const faction = api.getFaction(printing.attributes.faction_id).attributes
     .name;
