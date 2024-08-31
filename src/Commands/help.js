@@ -75,7 +75,7 @@ async function execute(interaction, client) {
     .setDescription(descriptionText)
     .setColor(color);
 
-  await interaction.reply({ embeds: [embed], ephemeral: true });
+  await interaction.reply({ embeds: [embed] });
 }
 
 ///////////////////////////////////////////////////////////////////////////////
