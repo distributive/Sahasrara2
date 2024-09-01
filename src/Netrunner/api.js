@@ -205,8 +205,9 @@ export async function getClosestCard(input) {
       ? closest(input, superStrings)
       : closest(input, DATA.cardTitles);
   const id = normalise(name)
-    .replace(/[^a-zA-Z0-9 -.]/g, "")
-    .replace(/[ -.]/g, "_");
+    .replace(/[^a-zA-Z0-9 -.]/g, "") // Remove invalid characters
+    .replace(/[ -.]/g, "_") // Normalise non-alphanumerics to underscores
+    .replace(/^_+|_+$/g, ""); // Strip trailing underscores
   return fetchCard(id);
 }
 
