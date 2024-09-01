@@ -100,7 +100,7 @@ async function parseNetrunnerCard(match, rawInput, channel) {
   }
 
   // If index is not a number, default to -1 (TODO: allow set/cycle names as indices)
-  if (isNaN(index)) {
+  if (isNaN(index) || !Number.isInteger(index)) {
     index = -1;
   }
 
