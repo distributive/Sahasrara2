@@ -1,7 +1,7 @@
 /**
  * A command for viewing user documentation for the bot.
  *
- * @file   This files defines the help function module.
+ * @file   This files defines the help command module.
  * @since  1.0.0
  */
 
