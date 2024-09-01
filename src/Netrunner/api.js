@@ -201,8 +201,8 @@ export async function getClosestCard(input) {
       ? closest(input, superStrings)
       : closest(input, DATA.cardTitles);
   const id = normalise(name)
-    .replace(/[^a-zA-Z0-9 -]/g, "")
-    .replace(/[ -]/g, "_");
+    .replace(/[^a-zA-Z0-9 -.]/g, "")
+    .replace(/[ -.]/g, "_");
   return fetchCard(id);
 }
 
