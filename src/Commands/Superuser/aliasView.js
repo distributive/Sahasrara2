@@ -50,7 +50,7 @@ async function execute(interaction, client) {
   const aliases = listAliases(closestCard.attributes.title);
 
   let embed;
-  if (aliases) {
+  if (aliases && aliases.length > 0) {
     const description = `The aliases for ${
       closestCard.attributes.title
     }:\n - ${aliases.join("\n- ")}`;
