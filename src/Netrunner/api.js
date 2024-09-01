@@ -9,6 +9,7 @@
 
 import { closest } from "fastest-levenshtein";
 import { normalise } from "./../Utility/utils.js";
+import { loadAliases } from "./aliases.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Init
@@ -52,6 +53,9 @@ export async function init() {
         a.attributes.date_start < b.attributes.date_start ? -1 : 1
       );
   });
+
+  // Load aliases
+  loadAliases();
 }
 
 ///////////////////////////////////////////////////////////////////////////////

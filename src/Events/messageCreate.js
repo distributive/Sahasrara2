@@ -7,6 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+import { applyAlias } from "../Netrunner/aliases.js";
 import { getClosestCard, fetchPrinting } from "./../Netrunner/api.js";
 import {
   createPrintingIndexOutOfBoundsEmbed,
@@ -16,7 +17,7 @@ import {
   createPrintingBanlistEmbed,
   createDeprecationEmbed,
 } from "./../Netrunner/embed.js";
-import { getClosestCard as _getClosestCard } from "./../ONR/api.js";
+import { getClosestCard as getClosestOnrCard } from "./../ONR/api.js";
 import {
   createCardEmbed,
   createCardImageEmbed,
@@ -104,7 +105,7 @@ async function parseNetrunnerCard(match, rawInput, channel) {
     index = -1;
   }
 
-  const card = await getClosestCard(query);
+  const card = await getClosestCard(applyAlias(query));
   if (index < 0) {
     index += card.attributes.printing_ids.length;
   }
@@ -141,7 +142,7 @@ async function parseNetrunnerCard(match, rawInput, channel) {
  * @param {Object} channel The Discord channel to send the response to.
  */
 function parseOnrCard(match, rawInput, channel) {
-  const card = _getClosestCard(rawInput);
+  const card = getClosestOnrCard(rawInput);
   const outEmbed =
     match[0] == "["
       ? createCardEmbed(card)

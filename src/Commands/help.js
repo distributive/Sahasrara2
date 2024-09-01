@@ -32,7 +32,7 @@ async function execute(interaction, client) {
 
   if (commandName) {
     const command = client.commands.get(commandName);
-    if (command) {
+    if (command && !command.data.hideFromHelp) {
       titleText = `\`${command.data.name}\``;
       descriptionText = command.data.longDescription
         ? command.data.longDescription
@@ -66,7 +66,9 @@ async function execute(interaction, client) {
         **Commands**`;
 
     client.commands.forEach((command) => {
-      descriptionText += `\n\`${command.data.name}\` ${command.data.description}`;
+      if (!command.data.hideFromHelp) {
+        descriptionText += `\n\`${command.data.name}\` ${command.data.description}`;
+      }
     });
   }
 
