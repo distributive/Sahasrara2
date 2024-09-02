@@ -138,6 +138,7 @@ export function createPrintingBanlistEmbed(printing, formatId) {
   // Convert the rows to strings and concatenate them
   const restrictionHistory = simplifiedRows
     .map((row) => `${row[0]} ${row[1]}`)
+    .reverse()
     .join("\n");
 
   return new EmbedBuilder()
