@@ -7,26 +7,30 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
+import {
+  EmbedBuilder,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { removeAlias, saveAliases } from "../../Netrunner/aliases.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const data = {
-  name: "removealias",
-  description: "removes an alias from the alias pool",
-  default_member_permisions: "" + PermissionFlagsBits.Administrator,
-  dm_permissions: "0",
+const data = new SlashCommandBuilder()
+  .setName("remove_alias")
+  .setDescription("removes an alias from the alias pool")
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+  .addStringOption((option) =>
+    option
+      .setName("alias")
+      .setDescription("the alias to remove")
+      .setRequired(true)
+  );
+
+const meta = {
   hideFromHelp: true,
-  options: [
-    {
-      name: "alias",
-      description: "the alias to remove",
-      type: 3,
-      required: true,
-    },
-  ],
 };
+
 async function execute(interaction, client) {
   // Verify superuser status - TODO: create permissions module
   if (interaction.user.id != process.env.SUPER_USER) {
@@ -62,4 +66,4 @@ async function execute(interaction, client) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute };
+export default { data, meta, execute };

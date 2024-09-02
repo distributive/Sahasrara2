@@ -7,32 +7,42 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
+import {
+  EmbedBuilder,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { addAlias, applyAlias, saveAliases } from "../../Netrunner/aliases.js";
+import {
+  denomraliseCardTitle,
+  searchNormalisedCardTitles,
+} from "../../Netrunner/api.js";
+import { normalise } from "../../Utility/utils.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const data = {
-  name: "addalias",
-  description: "adds an alias for a given card",
-  default_member_permisions: "" + PermissionFlagsBits.Administrator,
-  dm_permissions: "0",
+const data = new SlashCommandBuilder()
+  .setName("addalias")
+  .setDescription("adds an alias for a given card")
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+  .addStringOption((option) =>
+    option
+      .setName("alias")
+      .setDescription("the alias to map to a card")
+      .setRequired(true)
+  )
+  .addStringOption((option) =>
+    option
+      .setName("card")
+      .setDescription("the card the alias will map to")
+      .setRequired(true)
+      .setAutocomplete(true)
+  );
+
+const meta = {
   hideFromHelp: true,
-  options: [
-    {
-      name: "alias",
-      description: "the alias to map to a card",
-      type: 3,
-      required: true,
-    },
-    {
-      name: "card",
-      description: "the card the alias will map to",
-      type: 3,
-      required: true,
-    },
-  ],
 };
+
 async function execute(interaction, client) {
   // Verify superuser status - TODO: create permissions module
   if (interaction.user.id != process.env.SUPER_USER) {
@@ -48,7 +58,7 @@ async function execute(interaction, client) {
 
   const alias = interaction.options.getString("alias");
   const cardName = interaction.options.getString("card");
-  const success = addAlias(alias, cardName); // TODO: check if card name exists and offer corrections
+  const success = addAlias(alias, cardName);
 
   let embed;
   if (success) {
@@ -69,6 +79,14 @@ async function execute(interaction, client) {
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
+async function autocomplete(interaction) {
+  const focusedValue = normalise(interaction.options.getFocused());
+  const validChoices = searchNormalisedCardTitles(focusedValue)
+    .slice(0, 25)
+    .map((title) => ({ name: denomraliseCardTitle(title), value: title }));
+  await interaction.respond(validChoices);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute };
+export default { data, meta, execute, autocomplete };

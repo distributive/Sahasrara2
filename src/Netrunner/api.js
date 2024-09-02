@@ -32,9 +32,6 @@ const DATA = {}; // Persistent data
  */
 export async function init() {
   const cardURL = `${process.env.API_URL}cards?page%5Blimit%5D=100&page%5Boffset%5D=0`;
-  DATA.cardTitles = await fetchCards(cardURL, (card) =>
-    normalise(card.attributes.title)
-  );
   DATA.cardTypes = await fetchDataAsMap(`${process.env.API_URL}card_types`);
   DATA.factions = await fetchDataAsMap(`${process.env.API_URL}factions`);
   DATA.formats = await fetchDataAsMap(`${process.env.API_URL}formats`);
@@ -42,6 +39,29 @@ export async function init() {
   DATA.restrictions = await fetchDataAsMap(
     `${process.env.API_URL}restrictions`
   );
+
+  // Cache card titles
+  const cardTitles = await fetchCards(cardURL, (card) => card.attributes.title);
+
+  DATA.normalisedCardTitles = [];
+  DATA.normalisedToUnnormalisedCardTitles = {};
+  cardTitles.forEach((title) => {
+    const normalised = normalise(title);
+    DATA.normalisedCardTitles.push(normalised);
+    DATA.normalisedToUnnormalisedCardTitles[normalised] = title;
+  });
+
+  // Searchable object of normalised card titles
+  // An object where each key is a character whose value is a list of normalised card titles starting with that character
+  DATA.mappedCardTitles = {};
+  DATA.normalisedCardTitles.forEach((title) => {
+    const char = title[0];
+    if (DATA.mappedCardTitles[char]) {
+      DATA.mappedCardTitles[char].push(title);
+    } else {
+      DATA.mappedCardTitles[char] = [title];
+    }
+  });
 
   // Split snapshots by format
   const snapshots = await fetchData(`${process.env.API_URL}snapshots`);
@@ -194,21 +214,52 @@ export async function fetchDataAsMap(url) {
  */
 export async function getClosestCard(input) {
   input = normalise(input);
-  const superStrings = DATA.cardTitles.filter((title) => title.includes(input)); // cardTitles has already been normalised
-  const leadingStrings = superStrings.filter(
-    (title) => title.substring(0, input.length) == input
+  const superStrings = DATA.normalisedCardTitles.filter((title) =>
+    title.includes(input)
+  );
+  const leadingStrings = superStrings.filter((title) =>
+    title.startsWith(input)
   );
   const name =
     leadingStrings.length > 0
       ? closest(input, leadingStrings)
       : superStrings.length > 0
       ? closest(input, superStrings)
-      : closest(input, DATA.cardTitles);
+      : closest(input, DATA.normalisedCardTitles);
   const id = normalise(name)
     .replace(/[^a-zA-Z0-9 -.]/g, "") // Remove invalid characters
     .replace(/[ -.]/g, "_") // Normalise non-alphanumerics to underscores
     .replace(/^_+|_+$/g, ""); // Strip trailing underscores
   return fetchCard(id);
+}
+
+/**
+ * @return {string[]} The array of every card title in the game, normalised.
+ */
+export function getNormalisedCardTitles() {
+  return DATA.normalisedCardTitles;
+}
+
+/**
+ * @param {string} input A normalised card title.
+ * @return {string} The title of that card in its original form.
+ */
+export function denomraliseCardTitle(cardTitle) {
+  return DATA.normalisedToUnnormalisedCardTitles[cardTitle];
+}
+
+/**
+ * @param {string} query A card title search query (must be normalised).
+ * @return {string} The title of that card in its original form.
+ */
+export function searchNormalisedCardTitles(query) {
+  if (query && query.length > 0) {
+    const firstResults = DATA.mappedCardTitles[query[0]];
+    if (firstResults) {
+      return firstResults.filter((title) => title.startsWith(query));
+    }
+  }
+  return [];
 }
 
 ///////////////////////////////////////////////////////////////////////////////

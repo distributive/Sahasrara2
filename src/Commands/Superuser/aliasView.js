@@ -7,28 +7,38 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { EmbedBuilder, PermissionFlagsBits } from "discord.js";
+import {
+  EmbedBuilder,
+  PermissionFlagsBits,
+  SlashCommandBuilder,
+} from "discord.js";
 import { listAliases } from "./../../Netrunner/aliases.js";
-import { fetchPrinting, getClosestCard } from "./../../Netrunner/api.js";
+import {
+  denomraliseCardTitle,
+  fetchPrinting,
+  getClosestCard,
+  searchNormalisedCardTitles,
+} from "./../../Netrunner/api.js";
 import { factionToColor } from "./../../Netrunner/discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const data = {
-  name: "viewaliases",
-  description: "view all aliases of a given card",
-  default_member_permisions: "" + PermissionFlagsBits.Administrator,
-  dm_permissions: "0",
+const data = new SlashCommandBuilder()
+  .setName("view_aliases")
+  .setDescription("displays all aliases of a given card")
+  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+  .addStringOption((option) =>
+    option
+      .setName("card")
+      .setDescription("the card to view")
+      .setRequired(true)
+      .setAutocomplete(true)
+  );
+
+const meta = {
   hideFromHelp: true,
-  options: [
-    {
-      name: "card",
-      description: "the card to view",
-      type: 3,
-      required: true,
-    },
-  ],
 };
+
 async function execute(interaction, client) {
   // Verify superuser status - TODO: create permissions module
   if (interaction.user.id != process.env.SUPER_USER) {
@@ -69,6 +79,14 @@ async function execute(interaction, client) {
   await interaction.reply({ embeds: [embed], ephemeral: true });
 }
 
+async function autocomplete(interaction) {
+  const focusedValue = normalise(interaction.options.getFocused());
+  const validChoices = searchNormalisedCardTitles(focusedValue)
+    .slice(0, 25)
+    .map((title) => ({ name: denomraliseCardTitle(title), value: title }));
+  await interaction.respond(validChoices);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute };
+export default { data, meta, execute, autocomplete };

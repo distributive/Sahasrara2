@@ -43,17 +43,19 @@ client.commands = new Collection();
 export async function start(config) {
   client.config = config;
 
+  // Initialise card data so it can be accessed by commands on initialisation
+  console.log("initialising nrdb api...");
+  await initNetrunner();
+  console.log("initialising onr api...");
+  await initONR();
+
+  // Initialise bot features
   console.log("loading commands...");
   await initCommands(client);
   console.log("loading handler...");
   await initHandler(client);
   console.log("loading events...");
   await initEvents(client);
-
-  console.log("initialising nrdb api...");
-  await initNetrunner();
-  console.log("initialising onr api...");
-  await initONR();
 
   await client.login(process.env.TOKEN);
 }

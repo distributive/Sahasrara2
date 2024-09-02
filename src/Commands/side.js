@@ -7,25 +7,21 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const data = {
-  name: "side",
-  description: "picks a side at random",
-  dm_permissions: "0",
-  options: [
-    {
-      name: "opponent",
-      description: "specify your opponent",
-      type: 3,
-      required: false,
-    },
-  ],
-};
+const data = new SlashCommandBuilder()
+  .setName("side")
+  .setDescription("picks a side at random")
+  .addUserOption((option) =>
+    option.setName("opponent").setDescription("specify your opponent")
+  );
+
+const meta = {};
+
 async function execute(interaction, client) {
-  const opponent = interaction.options.getString("opponent");
+  const opponent = interaction.options.getUser("opponent");
   const userIsCorp = Math.floor(Math.random() * 2) == 0;
   const color = userIsCorp
     ? +process.env.COLOR_CORP
@@ -52,4 +48,4 @@ async function execute(interaction, client) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute };
+export default { data, meta, execute };

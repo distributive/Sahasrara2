@@ -7,15 +7,16 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const data = {
-  name: "mark",
-  description: "identifies your mark",
-  dm_permissions: "0",
-};
+const data = new SlashCommandBuilder()
+  .setName("mark")
+  .setDescription("identifies your mark");
+
+const meta = {};
+
 async function execute(interaction, client) {
   const random = Math.floor(Math.random() * 3);
   const server = random == 0 ? "HQ" : random == 1 ? "R&D" : "Archives";
@@ -36,4 +37,4 @@ async function execute(interaction, client) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute };
+export default { data, meta, execute };

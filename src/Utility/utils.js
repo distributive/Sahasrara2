@@ -18,5 +18,5 @@ import removeAccents from "remove-accents";
  * @return {string} The normalised string.
  */
 export function normalise(input) {
-  return removeAccents(input).toLowerCase();
+  return removeAccents(input).trim().toLowerCase();
 }

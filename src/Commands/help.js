@@ -7,23 +7,23 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { EmbedBuilder } from "discord.js";
+import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { normalise } from "../Utility/utils.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
-const data = {
-  name: "help",
-  description: "shows information about a specific command",
-  dm_permissions: "0",
-  options: [
-    {
-      name: "command_name",
-      description: "the command to display info on",
-      type: 3,
-      required: false,
-    },
-  ],
-};
+const data = new SlashCommandBuilder()
+  .setName("help")
+  .setDescription("shows information about a specific command")
+  .addStringOption((option) =>
+    option
+      .setName("command_name")
+      .setDescription("the command to display info on")
+      .setAutocomplete(true)
+  );
+
+const meta = {};
+
 async function execute(interaction, client) {
   const commandName = interaction.options.getString("command_name");
   let titleText,
@@ -66,7 +66,7 @@ async function execute(interaction, client) {
         **Commands**`;
 
     client.commands.forEach((command) => {
-      if (!command.data.hideFromHelp) {
+      if (!command.meta.hideFromHelp) {
         descriptionText += `\n\`${command.data.name}\` ${command.data.description}`;
       }
     });
@@ -80,6 +80,18 @@ async function execute(interaction, client) {
   await interaction.reply({ embeds: [embed] });
 }
 
+async function autocomplete(interaction, client) {
+  const focusedValue = normalise(interaction.options.getFocused());
+  const validChoices = client.commands
+    .filter(
+      (command) =>
+        !command.meta.hideFromHelp &&
+        normalise(command.data.name).startsWith(focusedValue)
+    )
+    .map((command) => ({ name: command.data.name, value: command.data.name }));
+  await interaction.respond(validChoices);
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute };
+export default { data, meta, execute, autocomplete };
