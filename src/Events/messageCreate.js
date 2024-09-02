@@ -63,8 +63,20 @@ async function parseInlineCommands(message) {
 
   const channel = client.channels.cache.get(message.channelId);
 
+  // Pass each parser a list to update with the card that gets fetched
+  // If the card is already in the list, do not display it again
+  let netrunnerCards = [];
+  let onrCards = [];
+
+  // Limit number of card embeds per message
+  let countdown = process.env.RESULT_LIMIT;
+
   // Parse each command
   for (const match of matches) {
+    if (countdown < 1) {
+      return;
+    }
+
     const rawInput = match.substring(2, match.length - 2).trim();
 
     // Ignore empty inputs
@@ -74,9 +86,19 @@ async function parseInlineCommands(message) {
 
     // Separate commands into modern Netrunner and Original Netrunner (ONR)
     if (match[1] != "|") {
-      await parseNetrunnerCard(match, rawInput, channel);
+      const success = await parseNetrunnerCard(
+        match,
+        rawInput,
+        channel,
+        netrunnerCards
+      );
+      if (success) {
+        countdown--;
+      }
     } else {
-      parseOnrCard(match, rawInput, channel);
+      if (parseOnrCard(match, rawInput, channel, onrCards)) {
+        countdown--;
+      }
     }
   }
 }
@@ -87,8 +109,9 @@ async function parseInlineCommands(message) {
  * @param {string} match The full inline command matched (includes brackets).
  * @param {string} rawInput The unedited contents of the command (excludes brackets).
  * @param {Object} channel The Discord channel to send the response to.
+ * @param {string[]} previousCards An array of card IDs already parsed from this message to avoid reposting any. Must be updated within.
  */
-async function parseNetrunnerCard(match, rawInput, channel) {
+async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
   // Separate command data
   const inputs = rawInput.split("|");
   let query, index;
@@ -106,6 +129,13 @@ async function parseNetrunnerCard(match, rawInput, channel) {
   }
 
   const card = await getClosestCard(applyAlias(query));
+
+  // Do not post more than one copy of each card per message
+  if (previousCards.includes(card.id)) {
+    return;
+  }
+  previousCards.push(card.id);
+
   if (index < 0) {
     index += card.attributes.printing_ids.length;
   }
@@ -132,6 +162,8 @@ async function parseNetrunnerCard(match, rawInput, channel) {
       ? createPrintingFlavourEmbed(printing)
       : createPrintingBanlistEmbed(printing);
   channel.send({ embeds: [outEmbed] });
+
+  return card.id;
 }
 
 /**
@@ -140,9 +172,17 @@ async function parseNetrunnerCard(match, rawInput, channel) {
  * @param {string} match The full inline command matched (includes brackets).
  * @param {string} rawInput The unedited contents of the command (excludes brackets).
  * @param {Object} channel The Discord channel to send the response to.
+ * @param {string[]} previousCards An array of card IDs already parsed from this message to avoid reposting any. Must be updated within.
  */
-function parseOnrCard(match, rawInput, channel) {
+function parseOnrCard(match, rawInput, channel, previousCards) {
   const card = getClosestOnrCard(rawInput);
+
+  // Do not post more than one copy of each card per message
+  if (previousCards.includes(card.id)) {
+    return;
+  }
+  previousCards.push(card.id);
+
   const outEmbed =
     match[0] == "["
       ? createCardEmbed(card)
@@ -150,6 +190,8 @@ function parseOnrCard(match, rawInput, channel) {
       ? createCardImageEmbed(card)
       : createCardFlavourEmbed(card);
   channel.send({ embeds: [outEmbed] });
+
+  return card.code;
 }
 
 /**
