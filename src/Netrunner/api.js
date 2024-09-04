@@ -229,7 +229,8 @@ export async function getClosestCard(input) {
   const id = normalise(name)
     .replace(/[^a-zA-Z0-9 .-]/g, "") // Remove invalid characters
     .replace(/[ .-]/g, "_") // Normalise non-alphanumerics to underscores
-    .replace(/^_+|_+$/g, ""); // Strip trailing underscores
+    .replace(/^_+|_+$/g, "") // Strip trailing underscores
+    .replace(/__+/g, "_"); // Condense sequential underscores
   return fetchCard(id);
 }
 
