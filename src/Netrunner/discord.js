@@ -135,6 +135,10 @@ export function formatText(text) {
   return text
     .replace(/<\/?strong>/g, "**")
     .replace(/<\/?em>/g, "*")
+    .replace(/<\/?ul>/g, "")
+    .replace(/<li>/g, "\n- ")
+    .replace(/<\/li>/g, "")
+    .replace(/<\/ul>/g, "\n")
     .replaceAll("[credit]", process.env.EMOJI_CREDIT)
     .replaceAll("[click]", process.env.EMOJI_CLICK)
     .replaceAll("[recurring-credit]", process.env.EMOJI_RECURRING_CREDIT)
