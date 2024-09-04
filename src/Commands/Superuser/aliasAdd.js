@@ -17,7 +17,7 @@ import {
   denomraliseCardTitle,
   searchNormalisedCardTitles,
 } from "../../Netrunner/api.js";
-import { normalise } from "../../Utility/utils.js";
+import { normalise } from "../../Utility/text.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 

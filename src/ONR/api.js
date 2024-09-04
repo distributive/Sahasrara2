@@ -7,8 +7,8 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { closest } from "fastest-levenshtein";
-import { normalise } from "./../Utility/utils.js";
+import { bestMatch } from "../Utility/fuzzySearch.js";
+import { normalise } from "./../Utility/text.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Init
@@ -74,10 +74,10 @@ function getClosestCard(input) {
   );
   const name =
     leadingStrings.length > 0
-      ? closest(input, leadingStrings)
+      ? bestMatch(input, leadingStrings)
       : superStrings.length > 0
-      ? closest(input, superStrings)
-      : closest(input, DATA.cardTitles);
+      ? bestMatch(input, superStrings)
+      : bestMatch(input, DATA.cardTitles);
   return DATA.cards[name];
 }
 

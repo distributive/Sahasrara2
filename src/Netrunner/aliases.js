@@ -9,7 +9,7 @@
 
 import fs from "fs";
 import YAML from "yaml";
-import { normalise } from "./../Utility/utils.js";
+import { normalise } from "./../Utility/text.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
