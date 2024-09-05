@@ -42,6 +42,9 @@ export async function init() {
 
   // Cache card titles
   let allCards = await fetchCards(cardURL);
+  allCards = allCards.sort((a, b) =>
+    a.attributes.release_date < b.attributes.release_date ? 1 : -1
+  );
 
   DATA.normalisedCardTitles = [];
   DATA.normalisedToUnnormalisedCardTitles = {};
