@@ -22,7 +22,7 @@ import { normalise } from "../../Utility/text.js";
 ///////////////////////////////////////////////////////////////////////////////
 
 const data = new SlashCommandBuilder()
-  .setName("addalias")
+  .setName("add_alias")
   .setDescription("adds an alias for a given card")
   .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addStringOption((option) =>
