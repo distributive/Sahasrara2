@@ -131,6 +131,12 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
 
   const card = await getClosestCard(applyAlias(query));
 
+  // Ensure a card was found
+  if (!card) {
+    console.error(`Card not found with query "${rawInput}"`);
+    return false;
+  }
+
   // Do not post more than one copy of each card per message
   if (previousCards.includes(card.id)) {
     return false;
