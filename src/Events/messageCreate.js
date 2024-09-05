@@ -110,6 +110,7 @@ async function parseInlineCommands(message) {
  * @param {string} rawInput The unedited contents of the command (excludes brackets).
  * @param {Object} channel The Discord channel to send the response to.
  * @param {string[]} previousCards An array of card IDs already parsed from this message to avoid reposting any. Must be updated within.
+ * @return {bool} Whether a card embed was successfully sent.
  */
 async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
   // Separate command data
@@ -132,7 +133,7 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
 
   // Do not post more than one copy of each card per message
   if (previousCards.includes(card.id)) {
-    return;
+    return false;
   }
   previousCards.push(card.id);
 
@@ -146,7 +147,7 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
     const printing = await fetchPrinting(card.attributes.latest_printing_id);
     const errorEmbed = createPrintingIndexOutOfBoundsEmbed(card, printing);
     channel.send({ embeds: [errorEmbed] });
-    return;
+    return false;
   }
 
   // Get the indexed printing
@@ -163,7 +164,7 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
       : createPrintingBanlistEmbed(printing);
   channel.send({ embeds: [outEmbed] });
 
-  return card.id;
+  return true;
 }
 
 /**
@@ -173,13 +174,14 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
  * @param {string} rawInput The unedited contents of the command (excludes brackets).
  * @param {Object} channel The Discord channel to send the response to.
  * @param {string[]} previousCards An array of card IDs already parsed from this message to avoid reposting any. Must be updated within.
+ * @return {bool} Whether a card embed was successfully sent.
  */
 function parseOnrCard(match, rawInput, channel, previousCards) {
   const card = getClosestOnrCard(rawInput);
 
   // Do not post more than one copy of each card per message
   if (previousCards.includes(card.id)) {
-    return;
+    return false;
   }
   previousCards.push(card.id);
 
@@ -191,7 +193,7 @@ function parseOnrCard(match, rawInput, channel, previousCards) {
       : createCardFlavourEmbed(card);
   channel.send({ embeds: [outEmbed] });
 
-  return card.code;
+  return true;
 }
 
 /**
