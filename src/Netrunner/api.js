@@ -41,14 +41,22 @@ export async function init() {
   );
 
   // Cache card titles
-  const cardTitles = await fetchCards(cardURL, (card) => card.attributes.title);
+  let allCards = await fetchCards(cardURL);
 
   DATA.normalisedCardTitles = [];
   DATA.normalisedToUnnormalisedCardTitles = {};
-  cardTitles.forEach((title) => {
-    const normalised = normalise(title);
+  DATA.acronymsToCardIds = {};
+  allCards.forEach((card) => {
+    const normalised = normalise(card.attributes.title);
     DATA.normalisedCardTitles.push(normalised);
-    DATA.normalisedToUnnormalisedCardTitles[normalised] = title;
+    DATA.normalisedToUnnormalisedCardTitles[normalised] = card.attributes.title;
+    const acronym = normalised
+      .split(/[ ]/)
+      .map((s) => s[0])
+      .join("");
+    if (!DATA.acronymsToCardIds[acronym]) {
+      DATA.acronymsToCardIds[acronym] = card.id;
+    }
   });
 
   // Searchable object of normalised card titles
@@ -213,19 +221,30 @@ export async function fetchDataAsMap(url) {
  * @return {Object} The card whose title most closely matches the input.
  */
 export async function getClosestCard(input) {
-  input = normalise(input);
+  const query = normalise(input);
+
+  // If the input is all uppercase, attempt to treat it as an acronym
+  if (
+    query.length > 1 &&
+    input.toUpperCase() == input &&
+    DATA.acronymsToCardIds[query]
+  ) {
+    return fetchCard(DATA.acronymsToCardIds[query]);
+  }
+
+  // Regular queries
   const superStrings = DATA.normalisedCardTitles.filter((title) =>
-    title.includes(input)
+    title.includes(query)
   );
   const leadingStrings = superStrings.filter((title) =>
-    title.startsWith(input)
+    title.startsWith(query)
   );
   const name =
     leadingStrings.length > 0
-      ? bestMatch(input, leadingStrings)
+      ? bestMatch(query, leadingStrings)
       : superStrings.length > 0
-      ? bestMatch(input, superStrings)
-      : bestMatch(input, DATA.normalisedCardTitles);
+      ? bestMatch(query, superStrings)
+      : bestMatch(query, DATA.normalisedCardTitles);
   const id = normalise(name)
     .replace(/[^a-zA-Z0-9 .-]/g, "") // Remove invalid characters
     .replace(/[ .-]/g, "_") // Normalise non-alphanumerics to underscores
