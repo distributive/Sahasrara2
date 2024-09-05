@@ -12,6 +12,7 @@ import {
   GatewayIntentBits,
   Collection,
   ActivityType,
+  Partials,
 } from "discord.js";
 import { init as initCommands } from "./commands.js";
 import { init as initHandler } from "./handler.js";
@@ -29,6 +30,7 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
   ],
+  partials: [Partials.Channel, Partials.Message],
   presence: {
     activities: [
       { name: "Now with slash commands!", type: ActivityType.Custom },
