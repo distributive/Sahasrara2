@@ -28,7 +28,7 @@ export function createPrintingEmbed(printing) {
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
     .setDescription(printingToEmbedBody(printing))
-    .setThumbnail(printing.attributes.images.nrdb_classic.medium)
+    .setThumbnail(printing.attributes.images.nrdb_classic.large)
     .setFooter({
       text: printingToFooter(printing),
       iconURL: factionToImage(printing.attributes.faction_id),
@@ -58,7 +58,7 @@ export function createPrintingFlavourEmbed(printing) {
   return new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}card/${printing.id}`)
+    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
     .setDescription(flavourText)
     .setThumbnail(printing.attributes.images.nrdb_classic.medium);
 }
@@ -144,7 +144,7 @@ export function createPrintingBanlistEmbed(printing, formatId) {
   return new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}card/${printing.id}`)
+    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
     .setDescription(restrictionHistory)
     .setThumbnail(printing.attributes.images.nrdb_classic.medium);
 }
@@ -162,7 +162,7 @@ export function createPrintingIndexOutOfBoundsEmbed(card, printing) {
   return new EmbedBuilder()
     .setColor(+process.env.COLOR_ERROR)
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}card/${printing.id}`)
+    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
     .setDescription(error)
     .setThumbnail(printing.attributes.images.nrdb_classic.medium);
 }
@@ -218,7 +218,7 @@ function printingToEmbedBody(printing) {
     stats += ` • Strength: ${printing.attributes.strength}`;
   }
   if (printing.attributes.trash_cost != null) {
-    stats += ` • Trash: ${printing.attributes.cost}`;
+    stats += ` • Trash: ${printing.attributes.trash_cost}`;
   }
   if (printing.attributes.card_type_id == "agenda") {
     stats += ` • (${printing.attributes.advancement_requirement}/${printing.attributes.agenda_points})`;
