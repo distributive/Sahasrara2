@@ -94,10 +94,10 @@ export function createPrintingBanlistEmbed(printing, formatId) {
   const rows = Object.keys(restrictionToSnapshots).map((restrictionId) => {
     const restriction = api.getRestriction(restrictionId);
     const isCardInPool = restrictionToSnapshots[restrictionId].some(
-      (snapshot) =>
-        api
-          .getCardPool(snapshot.attributes.card_pool_id)
-          .attributes.card_ids.includes(printing.attributes.card_id)
+      (snapshot) => {
+        const cardPool = api.getCardPool(snapshot.attributes.card_pool_id);
+        return api.isCardInCardPool(printing.attributes.card_id, cardPool.id);
+      }
     );
     if (isCardInPool) {
       hasBeenInPool = true;
@@ -258,7 +258,7 @@ function printingToEmbedBody(printing) {
 function printingToFooter(printing) {
   const isInPool = api.isCardInCardPool(
     printing.attributes.card_id,
-    api.getActiveCardPool("standard")
+    api.getActiveCardPool("standard").id
   );
   const isBanned = isInPool
     ? api.getLegalityUnderRestriction(

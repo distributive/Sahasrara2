@@ -39,6 +39,12 @@ export async function init() {
   DATA.restrictions = await fetchDataAsMap(
     `${process.env.API_URL}restrictions`
   );
+  DATA.cardCycles = await fetchDataAsMap(
+    `${process.env.API_URL}card_cycles?sort=-date_release`
+  );
+  DATA.cardSets = await fetchDataAsMap(
+    `${process.env.API_URL}card_sets?sort=-date_release`
+  );
 
   // Cache card titles
   let allCards = await fetchCards(cardURL);
@@ -83,6 +89,17 @@ export async function init() {
       .sort((a, b) =>
         a.attributes.date_start < b.attributes.date_start ? -1 : 1
       );
+  });
+
+  // Map card pools to their cards' IDs
+  DATA.cardPoolIdsToCardIds = {};
+  Object.keys(DATA.cardPools).forEach((cardPoolId) => {
+    const cards = allCards.filter((card) =>
+      DATA.cardPools[cardPoolId].attributes.card_cycle_ids.some((cycleId) =>
+        card.attributes.card_cycle_ids.includes(cycleId)
+      )
+    );
+    DATA.cardPoolIdsToCardIds[cardPoolId] = cards.map((card) => card.id);
   });
 
   // Load aliases
@@ -165,7 +182,7 @@ export async function fetchPrinting(printingId) {
 }
 
 /**
- * A generic function for fetching data from a json API page.
+ * A generic function for fetching data from the json API (fetches all pages).
  *
  * @param {string} url The URL to fetch the data from.
  * @return {*} The contents of json.data.
@@ -174,15 +191,23 @@ export async function fetchData(url) {
   return await fetch(url)
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(`Network response was not ok with url: ${url}`);
       }
       return response.json();
     })
     .then((json) => {
-      return json.data;
+      const data = json.data;
+      const next = json.links.next;
+      if (next == null || next == url) {
+        return data;
+      } else {
+        return fetchData(next).then((nextData) => {
+          return data.concat(nextData);
+        });
+      }
     })
     .catch((error) => {
-      console.error("Failed to load cards from API:", error);
+      console.error("Failed to load data from API:", error);
       return {};
     });
 }
@@ -325,6 +350,63 @@ export function getFormat(formatId) {
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+// Sets
+
+/**
+ * Gets the set of the given ID from the cache.
+ *
+ * @param {string} cardSetId A set's ID.
+ * @return {Object} The corresponding set.
+ */
+export function getCardSet(cardSetId) {
+  return DATA.cardSets[cardSetId];
+}
+
+/**
+ * Returns the array of all card sets. Do not modify.
+ *
+ * @return {Object[]} An array of all Netrunner sets.
+ */
+export function getAllCardSets() {
+  return DATA.cardSets;
+}
+
+/**
+ * Gets the list of printings in a card set. We need this because the API
+ * endpoint for card sets does not include this list as an attribute.
+ *
+ * @param {string} cardSetId A set's ID.
+ * @return {string[]} An array of that set's printings.
+ */
+export async function fetchCardSetPrintings(cardSetId) {
+  return await fetchCards(
+    `${process.env.API_URL}printings?filter[card_set_id]=${cardSetId}`
+  );
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// Cycles
+
+/**
+ * Gets the cycle of the given ID from the cache.
+ *
+ * @param {string} cardCycleId A cycle's ID.
+ * @return {Object} The corresponding cycle.
+ */
+export function getCardCycle(cardCycleId) {
+  return DATA.cardCycles[cardCycleId];
+}
+
+/**
+ * Returns the array of all card cycles. Do not modify.
+ *
+ * @return {Object[]} An array of all Netrunner cycles.
+ */
+export function getAllCardCycles() {
+  return DATA.cardCycles;
+}
+
+///////////////////////////////////////////////////////////////////////////////
 // Card pools
 
 /**
@@ -349,11 +431,23 @@ export function getActiveCardPool(formatId) {
 
 /**
  * @param {string} cardId A Netrunner card's ID.
- * @param {Object} cardPool A card pool.
+ * @param {string} cardPoolId A card pool's ID.
  * @return {bool} The legality of the card under the restriction.
  */
-export function isCardInCardPool(cardId, cardPool) {
-  return cardPool.attributes.card_ids.includes(cardId);
+export function isCardInCardPool(cardId, cardPoolId) {
+  return DATA.cardPoolIdsToCardIds[cardPoolId].includes(cardId);
+}
+
+/**
+ * @param {string} cardSetId A Netrunner set's ID.
+ * @param {string} cardPoolId A card pool's ID.
+ * @return {bool} The legality of the card under the restriction.
+ */
+export function isCardSetInCardPool(cardSetID, cardPoolId) {
+  const cardCycleId = DATA.cardSets[cardSetID].attributes.card_cycle_id;
+  return DATA.cardPools[cardPoolId].attributes.card_cycle_ids.includes(
+    cardCycleId
+  );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
