@@ -23,16 +23,19 @@ import {
  * @return {Object} A Discord embed displaying the title, game text, stats, and image of the card/printing.
  */
 export function createPrintingEmbed(printing) {
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
     .setDescription(printingToEmbedBody(printing))
-    .setThumbnail(printing.attributes.images.nrdb_classic.large)
     .setFooter({
       text: printingToFooter(printing),
       iconURL: factionToImage(printing.attributes.faction_id),
     });
+  if (printing.attributes.images) {
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
+  }
+  return embed;
 }
 
 /**

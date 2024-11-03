@@ -7,6 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+import fs from "fs";
 import { bestMatch } from "../Utility/fuzzySearch.js";
 import { normalise } from "./../Utility/text.js";
 import { loadAliases } from "./aliases.js";
@@ -14,24 +15,60 @@ import { loadAliases } from "./aliases.js";
 ///////////////////////////////////////////////////////////////////////////////
 // Init
 
-const DATA = {}; // Persistent data
+/**
+ * @typedef NrData
+ * @type {Object}
+ * @property {Object} cardTypes - A map of card type IDs to card type API data.
+ * @property {Object} factions - A map of faction IDs to faction API data.
+ * @property {Object} formats - A map of format IDs to format API data.
+ * @property {Object} cardPools - A map of card pool IDs to card pool API data.
+ * @property {Object} restrictions - A map of restriction IDs to restriction API data.
+ * @property {Object} cardCycles - A map of card cycle IDs to card cycle API data.
+ * @property {Object} cardSets - A map of card set IDs to card set API data.
+ * @property {string[]} normalisedCardTitles - An array of lowercase card titles with special characters removed.
+ * @property {Object} normalisedToUnnormalisedCardTitles - A map of normalised card titles to their unmodified versions.
+ * @property {Object} acronymsToCardIds - A map of strings to card IDs they are acronyms of.
+ * @property {Object} mappedCardTitles - A map of characters to a list of normalised card titles starting with that character.
+ * @property {Object} cardIdToIsLocal - A map of card IDs to a bool declaring if their card is defined locally (true) or by the API (false/null).
+ * @property {Object} printingIdToIsLocal - A map of printings IDs to a bool declaring if their printing is defined locally (true) or by the API (false/null).
+ * @property {Object} snapshots - A map of format IDs to lists of snapshots belonging to each format.
+ * @property {Object} cardPoolIdsToCardIds - A map of card pool IDs to the list of card IDs of cards they contain.
+ */
+
+/**
+ * An object to store all card data used throughout the bot's lifetime.
+ * @type {NrData}
+ */
+const DATA = {};
 
 /**
  * Initialises the api.
  *
- * This function should be called exactly once (at startup) to initialise and
- * cache some NRDB data. The title of each card is stored so as to avoid
- * fetching each card in the game every time there is a request, as are smaller
- * data sets; currently:
- * - Card types
- * - Factions
- * - Formats
- * - Card pools
- * - Restrictions
- * - Snapshots
+ * This function should be called exactly once (at startup) to initialise data
+ * from NetrunnerDB and any local data from resources.
  */
 export async function init() {
-  const cardURL = `${process.env.API_URL}cards?page%5Blimit%5D=100&page%5Boffset%5D=0`;
+  await loadApiData();
+  loadAliases();
+}
+
+/**
+ * Loads a data object storing all required data from the NetrunnerDB API.
+ *
+ * This function should be called exactly once (at startup) to initialise and
+ * cache some NRDB data. Some data sets are precalculated here (see the typedef
+ * for NrData).
+ *
+ * Also loads local json for the following data:
+ * - Cards
+ * - Printings
+ * - Card Sets
+ * - Card Cycles
+ *
+ * The Netrunner API should ideally not be accessed again, except to reload
+ * this data.
+ */
+async function loadApiData() {
   DATA.cardTypes = await fetchDataAsMap(`${process.env.API_URL}card_types`);
   DATA.factions = await fetchDataAsMap(`${process.env.API_URL}factions`);
   DATA.formats = await fetchDataAsMap(`${process.env.API_URL}formats`);
@@ -39,18 +76,44 @@ export async function init() {
   DATA.restrictions = await fetchDataAsMap(
     `${process.env.API_URL}restrictions`
   );
-  DATA.cardCycles = await fetchDataAsMap(
+
+  const apiCardCycles = await fetchDataAsMap(
     `${process.env.API_URL}card_cycles?sort=-date_release`
   );
-  DATA.cardSets = await fetchDataAsMap(
+  const localCardCycles = loadDirDataAsMap("resources/CardData/CardCycles");
+  DATA.cardCycles = mergeObjects([apiCardCycles, localCardCycles].flat());
+
+  const apiCardSets = await fetchDataAsMap(
     `${process.env.API_URL}card_sets?sort=-date_release`
   );
+  const localCardSets = loadDirDataAsMap("resources/CardData/CardSets");
+  DATA.cardSets = mergeObjects([apiCardSets, localCardSets].flat());
 
   // Cache card titles
-  let allCards = await fetchCards(cardURL);
+  const cardURL = `${process.env.API_URL}cards?page%5Blimit%5D=100&page%5Boffset%5D=0`;
+  const apiCards = await fetchCards(cardURL);
+  const localCards = loadAllCards();
+  let allCards = apiCards.concat(localCards);
   allCards = allCards.sort((a, b) =>
     a.attributes.release_date < b.attributes.release_date ? 1 : -1
   );
+
+  // Map card IDs to whether they are local (true) or remote (false/null)
+  // Local takes precedence
+  DATA.cardIdToIsLocal = {};
+  localCards.forEach((card) => {
+    DATA.cardIdToIsLocal[card.id] = true;
+  });
+
+  // Map printing IDs to whether they are local (true) or remote (false/null)
+  // Local takes precedence
+  DATA.printingIdToIsLocal = {};
+  loadAllPrintings().forEach((printing) => {
+    DATA.printingIdToIsLocal[printing.id] = true;
+  });
+
+  // Get snapshots (we don't store this directly, but group it later by format)
+  const snapshots = await fetchData(`${process.env.API_URL}snapshots`);
 
   DATA.normalisedCardTitles = [];
   DATA.normalisedToUnnormalisedCardTitles = {};
@@ -81,7 +144,6 @@ export async function init() {
   });
 
   // Split snapshots by format
-  const snapshots = await fetchData(`${process.env.API_URL}snapshots`);
   DATA.snapshots = {};
   Object.keys(DATA.formats).forEach((formatId) => {
     DATA.snapshots[formatId] = snapshots
@@ -94,16 +156,13 @@ export async function init() {
   // Map card pools to their cards' IDs
   DATA.cardPoolIdsToCardIds = {};
   Object.keys(DATA.cardPools).forEach((cardPoolId) => {
-    const cards = allCards.filter((card) =>
+    const cards = allCards.filter((card) => {
       DATA.cardPools[cardPoolId].attributes.card_cycle_ids.some((cycleId) =>
         card.attributes.card_cycle_ids.includes(cycleId)
-      )
-    );
+      );
+    });
     DATA.cardPoolIdsToCardIds[cardPoolId] = cards.map((card) => card.id);
   });
-
-  // Load aliases
-  loadAliases();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -142,23 +201,35 @@ export async function fetchCards(url, mapFunc) {
 }
 
 /**
+ * Fetches the card matching the given ID. If it is an API card it will fetch
+ * it from the API. Otherwise, it will search the local card store for it.
+ *
  * @param {string} cardId A card's ID.
  * @return {Object} The card with the given ID from the API.
  */
 export async function fetchCard(cardId) {
-  return await fetch(`${process.env.API_URL}cards/${cardId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      return json.data;
-    })
-    .catch((error) => {
-      console.error(`Failed to load card ${cardId} from API:`, error);
-    });
+  if (!DATA.cardIdToIsLocal[cardId]) {
+    return await fetch(`${process.env.API_URL}cards/${cardId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((json) => {
+        return json.data;
+      })
+      .catch((error) => {
+        console.error(`Failed to load card ${cardId} from API:`, error);
+      });
+  } else {
+    const localCards = loadAllCards();
+    const card = localCards.find((card) => card.id == cardId);
+    if (!card) {
+      console.error(`Failed to find card ${cardId} in local json.`);
+    }
+    return card;
+  }
 }
 
 /**
@@ -166,19 +237,30 @@ export async function fetchCard(cardId) {
  * @return {Object} The printing with the given ID from the API.
  */
 export async function fetchPrinting(printingId) {
-  return await fetch(`${process.env.API_URL}printings/${printingId}`)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      return response.json();
-    })
-    .then((json) => {
-      return json.data;
-    })
-    .catch((error) => {
-      console.error(`Failed to load card ${cardId} from API:`, error);
-    });
+  if (!DATA.printingIdToIsLocal[printingId]) {
+    return await fetch(`${process.env.API_URL}printings/${printingId}`)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        return response.json();
+      })
+      .then((json) => {
+        return json.data;
+      })
+      .catch((error) => {
+        console.error(`Failed to load card ${cardId} from API:`, error);
+      });
+  } else {
+    const localPrintings = loadAllPrintings();
+    const printing = localPrintings.find(
+      (printing) => printing.id == printingId
+    );
+    if (!printing) {
+      console.error(`Failed to find printing ${printingId} in local json.`);
+    }
+    return printing;
+  }
 }
 
 /**
@@ -221,7 +303,7 @@ export async function fetchData(url) {
  */
 export async function fetchDataAsMap(url) {
   const data = await fetchData(url);
-  let obj = {};
+  const obj = {};
   if (!data.length && data.length !== 0) {
     obj[data.id] = data;
     return obj;
@@ -230,6 +312,99 @@ export async function fetchDataAsMap(url) {
     obj[entry.id] = entry;
   });
   return obj;
+}
+
+/** A function for loading all json files in a directory.
+ *
+ * @param {string} path The path of the directory to load.
+ * @return {Object[]} An array of json.data objects.
+ */
+function loadDirData(path) {
+  const files = fs.readdirSync(path);
+  return files.map((file) => loadData(`${path}/${file}`));
+}
+
+/**
+ * A generic function for loading data from a local json file.
+ *
+ * @param {string} path The path to load the data from.
+ * @return {*} The contents of json.data.
+ */
+function loadData(path) {
+  return JSON.parse(fs.readFileSync(path)).data;
+}
+
+/** A function for loading all files in a directory and formatting them as
+ * objects mapping the ID of each element to that element.
+ *
+ * @param {string} path The path of the directory to load.
+ * @return {Object[]} An array of formatted objects.
+ */
+function loadDirDataAsMap(path) {
+  const files = fs.readdirSync(path);
+  return files.map((file) => loadDataAsMap(`${path}/${file}`));
+}
+
+/**
+ * A generic function for loading local json data from a given file as an
+ * object mapping the ID of each element to that element.
+ *
+ * @param {string} path The path to the file to load the data from.
+ * @return {Object} The reformatted contents of json.data.
+ */
+function loadDataAsMap(path) {
+  const data = loadData(path);
+  const obj = {};
+  if (!data.length && data.length !== 0) {
+    obj[data.id] = data;
+    return obj;
+  }
+  data.forEach((entry) => {
+    obj[entry.id] = entry;
+  });
+  return obj;
+}
+
+/**
+ * A function that merges a list of objects, adding their key-value pairs to a
+ * new object.
+ *
+ * Duplicate keys should be avoided. When they occur, later objects in the list
+ * take priority.
+ *
+ * @param {Object[]} objects An array of objects to be merged.
+ * @return {Object} A new object with the key-value pairs of all the objects.
+ */
+function mergeObjects(objects) {
+  const newObj = {};
+  objects.forEach((object) => {
+    Object.keys(object).forEach((k) => {
+      newObj[k] = object[k];
+    });
+  });
+  return newObj;
+}
+
+/**
+ * Loads every card from the local card files.
+ *
+ * @param {Function=} mapFunc A function to apply to each card after being fetched (optional).
+ * @return {Object[]} An array containing every card object in the local json files.
+ */
+function loadAllCards(mapFunc) {
+  const cards = loadDirData("resources/CardData/Cards").flat();
+  return mapFunc ? cards.map(mapFunc) : cards;
+}
+
+/**
+ * Loads every printing from the local card files.
+ *
+ * @param {Function=} mapFunc A function to apply to each printing after being fetched (optional).
+ * @return {Object[]} An array containing every printing object in the local json files.
+ */
+function loadAllPrintings(mapFunc) {
+  const printings = loadDirData("resources/CardData/Printings").flat();
+  return mapFunc ? printings.map(mapFunc) : printings;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -398,9 +573,9 @@ export function getCardCycle(cardCycleId) {
 }
 
 /**
- * Returns the array of all card cycles. Do not modify.
+ * Returns the map of all card cycles. Do not modify.
  *
- * @return {Object[]} An array of all Netrunner cycles.
+ * @return {Object} A mapping of all card cycle IDs to their card cycle.
  */
 export function getAllCardCycles() {
   return DATA.cardCycles;
