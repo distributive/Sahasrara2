@@ -43,11 +43,14 @@ export function createPrintingEmbed(printing) {
  * @return {Object} A Discord embed displaying the title and image of the printing.
  */
 export function createPrintingImageEmbed(printing) {
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
-    .setImage(printing.attributes.images.nrdb_classic.large);
+    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`);
+  if (printing.attributes.images) {
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
+  }
+  return embed;
 }
 
 /**
@@ -58,12 +61,15 @@ export function createPrintingFlavourEmbed(printing) {
   let flavourText = printing.attributes.flavor
     ? printing.attributes.flavor
     : "`Card has no flavour text.`";
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
-    .setDescription(flavourText)
-    .setThumbnail(printing.attributes.images.nrdb_classic.medium);
+    .setDescription(flavourText);
+  if (printing.attributes.images) {
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
+  }
+  return embed;
 }
 
 /**
@@ -144,12 +150,15 @@ export function createPrintingBanlistEmbed(printing, formatId) {
     .reverse()
     .join("\n");
 
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
-    .setDescription(restrictionHistory)
-    .setThumbnail(printing.attributes.images.nrdb_classic.medium);
+    .setDescription(restrictionHistory);
+  if (printing.attributes.images) {
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
+  }
+  return embed;
 }
 
 /**
@@ -162,12 +171,15 @@ export function createPrintingIndexOutOfBoundsEmbed(card, printing) {
   const error = `\`Index out of bounds! ${
     card.attributes.title
   } has ${length} printing${length != 1 ? "s" : ""}.\``; // TODO: add error module
-  return new EmbedBuilder()
+  const embed = new EmbedBuilder()
     .setColor(+process.env.COLOR_ERROR)
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
-    .setDescription(error)
-    .setThumbnail(printing.attributes.images.nrdb_classic.medium);
+    .setDescription(error);
+  if (printing.attributes.images) {
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
+  }
+  return embed;
 }
 
 /**
