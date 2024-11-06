@@ -17,8 +17,10 @@ import {
 import { init as initCommands } from "./commands.js";
 import { init as initHandler } from "./handler.js";
 import { init as initEvents } from "./events.js";
-import { init as initNetrunner } from "./../Netrunner/api.js";
-import { init as initONR } from "./../ONR/api.js";
+import { init as initNetrunner } from "../Netrunner/api.js";
+import { init as initONR } from "../ONR/api.js";
+import { loadWhitelist } from "../Permissions/serverWhitelist.js";
+import { readBool } from "../Utility/env.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -51,6 +53,12 @@ export async function start(config) {
   await initNetrunner();
   console.log("initialising onr api...");
   await initONR();
+
+  // Set up whitelist
+  if (readBool("WHITELIST_SERVERS")) {
+    console.log("server whitelist is enabled; loading saved data...");
+    loadWhitelist();
+  }
 
   // Initialise bot features
   console.log("loading commands...");
