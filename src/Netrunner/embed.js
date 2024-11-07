@@ -48,7 +48,7 @@ export function createPrintingImageEmbed(printing) {
     .setTitle(printingToTitle(printing))
     .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`);
   if (printing.attributes.images) {
-    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
+    embed.setImage(printing.attributes.images.nrdb_classic.large);
   }
   return embed;
 }
