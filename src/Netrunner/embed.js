@@ -59,7 +59,7 @@ export function createPrintingImageEmbed(printing) {
  */
 export function createPrintingFlavourEmbed(printing) {
   let flavourText = printing.attributes.flavor
-    ? printing.attributes.flavor
+    ? formatText(printing.attributes.flavor)
     : "`Card has no flavour text.`";
   const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
