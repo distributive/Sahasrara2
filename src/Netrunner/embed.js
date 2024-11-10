@@ -287,6 +287,7 @@ function printingToFooter(printing) {
   const set = printing.attributes.card_set_name;
   const cycleSet = cycle == set ? cycle : `${cycle} • ${set}`;
   const legality = isInPool ? (isBanned ? " (banned)" : "") : " (rotated)";
+  const setData = cycleSet ? `${cycleSet}${legality}` : "Unknown set";
   const position = printing.attributes.position;
-  return `${faction} • ${cycleSet}${legality} #${position}`;
+  return `${faction} • ${setData} #${position}`;
 }
