@@ -156,11 +156,11 @@ async function loadApiData() {
   // Map card pools to their cards' IDs
   DATA.cardPoolIdsToCardIds = {};
   Object.keys(DATA.cardPools).forEach((cardPoolId) => {
-    const cards = allCards.filter((card) => {
+    const cards = allCards.filter((card) =>
       DATA.cardPools[cardPoolId].attributes.card_cycle_ids.some((cycleId) =>
         card.attributes.card_cycle_ids.includes(cycleId)
-      );
-    });
+      )
+    );
     DATA.cardPoolIdsToCardIds[cardPoolId] = cards.map((card) => card.id);
   });
 }
