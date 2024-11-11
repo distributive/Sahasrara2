@@ -195,8 +195,7 @@ export async function fetchCards(url, mapFunc) {
       }
     })
     .catch((error) => {
-      console.error("Failed to load cards from API:", error);
-      return [];
+      throw new error("Failed to load cards from API: " + error);
     });
 }
 
@@ -220,13 +219,13 @@ export async function fetchCard(cardId) {
         return json.data;
       })
       .catch((error) => {
-        console.error(`Failed to load card ${cardId} from API:`, error);
+        throw new Error(`Failed to load card ${cardId} from API: ${error}`);
       });
   } else {
     const localCards = loadAllCards();
     const card = localCards.find((card) => card.id == cardId);
     if (!card) {
-      console.error(`Failed to find card ${cardId} in local json.`);
+      throw new Error(`Failed to find card ${cardId} in local json.`);
     }
     return card;
   }
@@ -249,7 +248,9 @@ export async function fetchPrinting(printingId) {
         return json.data;
       })
       .catch((error) => {
-        console.error(`Failed to load card ${cardId} from API:`, error);
+        throw new Error(
+          `Failed to load printing ${printingId} from API: ${error}`
+        );
       });
   } else {
     const localPrintings = loadAllPrintings();
@@ -257,7 +258,7 @@ export async function fetchPrinting(printingId) {
       (printing) => printing.id == printingId
     );
     if (!printing) {
-      console.error(`Failed to find printing ${printingId} in local json.`);
+      throw new Error(`Failed to find printing ${printingId} in local json.`);
     }
     return printing;
   }
@@ -289,8 +290,7 @@ export async function fetchData(url) {
       }
     })
     .catch((error) => {
-      console.error("Failed to load data from API:", error);
-      return {};
+      throw new Error("Failed to load data from API: " + error);
     });
 }
 

@@ -45,3 +45,24 @@ export function bestMatch(input, pool, options) {
     ["", Infinity]
   )[0];
 }
+
+/**
+ * Finds the closest match under the provided weightings (or the defaults if
+ * none are provided) of a given pairing of a string and value, returning just
+ * the value within an array of strings. Earlier elements in the array are
+ * prioritised in the case of ties.
+ *
+ * @param {string} input The string to find the closest match to.
+ * @param {[string, *][]} pool An array of pairs of strings to match and their respective values.
+ * @return {string} The best match for the input from within the pool.
+ */
+export function bestMatchValue(input, pool, options) {
+  options = options ? options : defaultOptions;
+  return pool.reduce(
+    function (prev, next) {
+      const distance = dldist(input, next[0], options);
+      return distance < prev[1] ? [next[1], distance] : prev;
+    },
+    [null, Infinity]
+  )[0];
+}

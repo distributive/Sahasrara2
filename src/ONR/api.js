@@ -7,6 +7,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
+import { logError } from "../Utility/error.js";
 import { bestMatch } from "../Utility/fuzzySearch.js";
 import { normalise } from "./../Utility/text.js";
 
@@ -31,8 +32,7 @@ async function init() {
       return response.json();
     })
     .catch((error) => {
-      console.error("Failed to load cards from ONR API:", error);
-      return [];
+      throw new Error("Failed to load cards from ONR API: " + error);
     });
 
   DATA.imageUrlTemplate = json.imageUrlTemplate;

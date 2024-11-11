@@ -27,6 +27,7 @@ import {
 ///////////////////////////////////////////////////////////////////////////////
 
 import { readBool } from "../Utility/env.js";
+import { logError } from "../Utility/error.js";
 import * as wl from "../Permissions/serverWhitelist.js";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -56,7 +57,7 @@ export default async function execute(message) {
   if (content.toLowerCase().substring(0, 5) == "$help") {
     sendDeprecationWarning(message);
   } else {
-    parseInlineCommands(message);
+    parseInlineCommands(message).catch(logError);
   }
 }
 
@@ -152,7 +153,7 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
 
   // Ensure a card was found
   if (!card) {
-    console.error(`Card not found with query "${rawInput}"`);
+    logError(new Error(`Card not found with query "${rawInput}"`));
     return false;
   }
 

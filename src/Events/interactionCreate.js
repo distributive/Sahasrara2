@@ -7,8 +7,9 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { readBool } from "../Utility/env.js";
 import * as wl from "../Permissions/serverWhitelist.js";
+import { readBool } from "../Utility/env.js";
+import { logError } from "../Utility/error.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -19,7 +20,7 @@ export default async function execute(interaction) {
     const command = client.commands.get(commandName);
 
     if (!command) {
-      console.error(`The slash command "${commandName}" was not found.`);
+      logError(new Error(`The slash command "${commandName}" was not found.`));
       return;
     }
 
@@ -41,10 +42,7 @@ export default async function execute(interaction) {
     try {
       command.execute(interaction, client);
     } catch (err) {
-      console.error("===================");
-      console.error("Slash command error");
-      console.error("===================");
-      console.error(err);
+      logError(err); // Slash command error
     }
   }
 
@@ -54,16 +52,15 @@ export default async function execute(interaction) {
     const command = client.commands.get(commandName);
 
     if (!command) {
-      console.error(`The autocomplete command "${commandName}" was not found.`);
+      logError(
+        new Error(`The autocomplete command "${commandName}" was not found.`)
+      );
     }
 
     try {
       await command.autocomplete(interaction, client);
-    } catch (error) {
-      console.error("==================");
-      console.error("Autocomplete error");
-      console.error("==================");
-      console.error(error);
+    } catch (err) {
+      logError(err); // Autocomplete error
     }
   }
 }
