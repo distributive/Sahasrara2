@@ -15,7 +15,6 @@ import {
   createPrintingImageEmbed,
   createPrintingFlavourEmbed,
   createPrintingBanlistEmbed,
-  createDeprecationEmbed,
 } from "./../Netrunner/embed.js";
 import { getClosestCard as getClosestOnrCard } from "./../ONR/api.js";
 import {
@@ -54,11 +53,8 @@ export default async function execute(message) {
     return;
   }
 
-  if (content.toLowerCase().substring(0, 5) == "$help") {
-    sendDeprecationWarning(message);
-  } else {
-    parseInlineCommands(message).catch(logError);
-  }
+  // Parse the message
+  parseInlineCommands(message).catch(logError);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -220,15 +216,4 @@ function parseOnrCard(match, rawInput, channel, previousCards) {
   channel.send({ embeds: [outEmbed] });
 
   return true;
-}
-
-/**
- * Sends a user a warning that plaintext commands (i.e. prefixed commands instead of slash commands) are no longer supported.
- *
- * @param {Object} message The message that triggered this warning.
- */
-function sendDeprecationWarning(message) {
-  const channel = message.client.channels.cache.get(message.channelId);
-  const outEmbed = createDeprecationEmbed();
-  channel.send({ embeds: [outEmbed] });
 }

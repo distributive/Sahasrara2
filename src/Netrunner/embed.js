@@ -182,20 +182,6 @@ export function createPrintingIndexOutOfBoundsEmbed(card, printing) {
   return embed;
 }
 
-/**
- * TODO: move to a generic embed module.
- *
- * @return {Object} A Discord embed notifying the user that this bot no longer uses plaintext commands.
- */
-export function createDeprecationEmbed() {
-  const message =
-    "I now use slash commands! To see the new help menu, try `/help`!";
-  return new EmbedBuilder()
-    .setColor(factionToColor(+process.env.COLOR_ERROR))
-    .setTitle("$ commands deprecated!")
-    .setDescription(message);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // PRIVATE
 
