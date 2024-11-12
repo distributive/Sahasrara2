@@ -9,7 +9,7 @@
 
 import fs from "fs";
 import { bestMatch } from "../Utility/fuzzySearch.js";
-import { normalise } from "./../Utility/text.js";
+import { normalise, readId } from "./../Utility/text.js";
 import { loadAliases } from "./aliases.js";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -448,11 +448,7 @@ export async function getClosestCard(input) {
       : superStrings.length > 0
       ? bestMatch(query, superStrings)
       : bestMatch(query, DATA.normalisedCardTitles);
-  const id = normalise(name)
-    .replace(/[^a-zA-Z0-9 .&/-]/g, "") // Remove invalid characters
-    .replace(/[^a-zA-Z0-9]/g, "_") // Normalise non-alphanumerics to underscores
-    .replace(/^_+|_+$/g, "") // Strip trailing underscores
-    .replace(/__+/g, "_"); // Condense sequential underscores
+  const id = readId(name);
   return fetchCard(id);
 }
 
