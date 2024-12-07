@@ -23,10 +23,13 @@ import {
  * @return {Object} A Discord embed displaying the title, game text, stats, and image of the card/printing.
  */
 export function createPrintingEmbed(printing) {
+  const url = printing.attributes.link
+    ? printing.attributes.link
+    : `${process.env.NRDB_URL}en/card/${printing.id}`;
   const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
+    .setURL(url)
     .setDescription(printingToEmbedBody(printing))
     .setFooter({
       text: printingToFooter(printing),
@@ -43,10 +46,13 @@ export function createPrintingEmbed(printing) {
  * @return {Object} A Discord embed displaying the title and image of the printing.
  */
 export function createPrintingImageEmbed(printing) {
+  const url = printing.attributes.link
+    ? printing.attributes.link
+    : `${process.env.NRDB_URL}en/card/${printing.id}`;
   const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`);
+    .setURL(url);
   if (printing.attributes.images) {
     embed.setImage(printing.attributes.images.nrdb_classic.large);
   }
@@ -61,10 +67,13 @@ export function createPrintingFlavourEmbed(printing) {
   let flavourText = printing.attributes.flavor
     ? formatText(printing.attributes.flavor)
     : "`Card has no flavour text.`";
+  const url = printing.attributes.link
+    ? printing.attributes.link
+    : `${process.env.NRDB_URL}en/card/${printing.id}`;
   const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
+    .setURL(url)
     .setDescription(flavourText);
   if (printing.attributes.images) {
     embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
@@ -150,10 +159,15 @@ export function createPrintingBanlistEmbed(printing, formatId) {
     .reverse()
     .join("\n");
 
+  // Get the printing's link
+  const url = printing.attributes.link
+    ? printing.attributes.link
+    : `${process.env.NRDB_URL}en/card/${printing.id}`;
+
   const embed = new EmbedBuilder()
     .setColor(factionToColor(printing.attributes.faction_id))
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
+    .setURL(url)
     .setDescription(restrictionHistory);
   if (printing.attributes.images) {
     embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
@@ -171,10 +185,13 @@ export function createPrintingIndexOutOfBoundsEmbed(card, printing) {
   const error = `\`Index out of bounds! ${
     card.attributes.title
   } has ${length} printing${length != 1 ? "s" : ""}.\``; // TODO: add error module
+  const url = printing.attributes.link
+    ? printing.attributes.link
+    : `${process.env.NRDB_URL}en/card/${printing.id}`;
   const embed = new EmbedBuilder()
     .setColor(+process.env.COLOR_ERROR)
     .setTitle(printingToTitle(printing))
-    .setURL(`${process.env.NRDB_URL}en/card/${printing.id}`)
+    .setURL(url)
     .setDescription(error);
   if (printing.attributes.images) {
     embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
