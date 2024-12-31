@@ -20,6 +20,7 @@ import { init as initEvents } from "./events.js";
 import { init as initNetrunner } from "../Netrunner/api.js";
 import { init as initONR } from "../ONR/api.js";
 import { loadWhitelist } from "../Permissions/serverWhitelist.js";
+import { init as initDatabase } from "../Database/database.js";
 import { readBool } from "../Utility/env.js";
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -47,6 +48,10 @@ client.commands = new Collection();
 
 export async function start(config) {
   client.config = config;
+
+  // Initialise database
+  console.log("initialising database...");
+  await initDatabase();
 
   // Initialise card data so it can be accessed by commands on initialisation
   console.log("initialising nrdb api...");

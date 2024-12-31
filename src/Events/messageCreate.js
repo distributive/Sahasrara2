@@ -28,6 +28,7 @@ import {
 import { readBool } from "../Utility/env.js";
 import { logError } from "../Utility/error.js";
 import * as wl from "../Permissions/serverWhitelist.js";
+import { logQuery } from "../Database/database.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -95,8 +96,8 @@ async function parseInlineCommands(message) {
 
     const rawInput = match.substring(2, match.length - 2).trim();
 
-    // Ignore empty inputs
-    if (!rawInput) {
+    // Ignore empty inputs and excessively long inputs
+    if (!rawInput || rawInput.length > 255) {
       return;
     }
 
@@ -175,6 +176,16 @@ async function parseNetrunnerCard(match, rawInput, channel, previousCards) {
   // Get the indexed printing
   const printing = await fetchPrinting(card.attributes.printing_ids[index]);
 
+  // Log query
+  logQuery(
+    rawInput,
+    card.id,
+    printing.id,
+    channel.type,
+    false,
+    match[0] == "[" ? 0 : match[0] == "{" ? 1 : match[0] == "<" ? 2 : 3
+  );
+
   // Create and send embed
   const outEmbed =
     match[0] == "["
@@ -206,6 +217,15 @@ function parseOnrCard(match, rawInput, channel, previousCards) {
     return false;
   }
   previousCards.push(card.id);
+
+  logQuery(
+    rawInput,
+    card.code,
+    "",
+    channel.type,
+    true,
+    match[0] == "[" ? 0 : match[0] == "{" ? 1 : 2
+  );
 
   const outEmbed =
     match[0] == "["

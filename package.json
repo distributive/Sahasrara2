@@ -7,6 +7,7 @@
   "dependencies": {
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
+    "mysql": "^2.18.1",
     "remove-accents": "^0.5.0",
     "weighted-damerau-levenshtein": "^0.1.2",
     "yaml": "^2.5.0"
