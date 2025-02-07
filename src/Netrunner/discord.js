@@ -132,28 +132,33 @@ export function factionToImage(factionId) {
  * @return {string} The formatted text with emoji and formatting added.
  */
 export function formatText(text) {
-  return text
-    .replace(/<\/?strong>/g, "**")
-    .replace(/<\/?em>/g, "*")
-    .replace(/<\/?ul>/g, "")
-    .replace(/<li>/g, "\n- ")
-    .replace(/<\/li>/g, "")
-    .replace(/<\/ul>/g, "\n")
-    .replaceAll("[credit]", process.env.EMOJI_CREDIT)
-    .replaceAll("[click]", process.env.EMOJI_CLICK)
-    .replaceAll("[recurring-credit]", process.env.EMOJI_RECURRING_CREDIT)
-    .replaceAll("[link]", process.env.EMOJI_LINK)
-    .replaceAll("[mu]", process.env.EMOJI_MU)
-    .replaceAll("[interrupt]", process.env.EMOJI_INTERRUPT)
-    .replaceAll("[subroutine]", process.env.EMOJI_SUBROUTINE)
-    .replaceAll("[trash]", process.env.EMOJI_TRASH_ABILITY)
-    .replaceAll("[anarch]", factionToEmote("anarch"))
-    .replaceAll("[criminal]", factionToEmote("criminal"))
-    .replaceAll("[shaper]", factionToEmote("shaper"))
-    .replaceAll("[haas-bioroid]", factionToEmote("haas_bioroid"))
-    .replaceAll("[jinteki]", factionToEmote("jinteki"))
-    .replaceAll("[nbn]", factionToEmote("nbn"))
-    .replaceAll("[weyland-consortium]", factionToEmote("weyland_consortium"));
+  return !text
+    ? "`Card has no text.`"
+    : text
+        .replace(/<\/?strong>/g, "**")
+        .replace(/<\/?em>/g, "*")
+        .replace(/<\/?ul>/g, "")
+        .replace(/<li>/g, "\n- ")
+        .replace(/<\/li>/g, "")
+        .replace(/<\/ul>/g, "\n")
+        .replaceAll("[credit]", process.env.EMOJI_CREDIT)
+        .replaceAll("[click]", process.env.EMOJI_CLICK)
+        .replaceAll("[recurring-credit]", process.env.EMOJI_RECURRING_CREDIT)
+        .replaceAll("[link]", process.env.EMOJI_LINK)
+        .replaceAll("[mu]", process.env.EMOJI_MU)
+        .replaceAll("[interrupt]", process.env.EMOJI_INTERRUPT)
+        .replaceAll("[subroutine]", process.env.EMOJI_SUBROUTINE)
+        .replaceAll("[trash]", process.env.EMOJI_TRASH_ABILITY)
+        .replaceAll("[anarch]", factionToEmote("anarch"))
+        .replaceAll("[criminal]", factionToEmote("criminal"))
+        .replaceAll("[shaper]", factionToEmote("shaper"))
+        .replaceAll("[haas-bioroid]", factionToEmote("haas_bioroid"))
+        .replaceAll("[jinteki]", factionToEmote("jinteki"))
+        .replaceAll("[nbn]", factionToEmote("nbn"))
+        .replaceAll(
+          "[weyland-consortium]",
+          factionToEmote("weyland_consortium")
+        );
 }
 
 ///////////////////////////////////////////////////////////////////////////////
