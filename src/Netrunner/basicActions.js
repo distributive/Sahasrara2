@@ -20,8 +20,8 @@ const CORP_BASIC_ACTIONS = `
   **[click], 1[credit]:** Advance 1 installed card.
   **[click], 2[credit]:** Trash 1 installed resource. Take this action only if the Runner is tagged.
   **[click][click][click]:** Purge virus counters.
-  (you get 3 alloted clicks each turn)
 `;
+const CORP_ALLOTTED_CLICKS = `You get 3 alloted clicks each turn.`;
 
 const RUNNER_BASIC_ACTIONS = `
   **[click]:** Gain 1[credit].
@@ -30,8 +30,8 @@ const RUNNER_BASIC_ACTIONS = `
   **[click]:** Install 1 program/resource/hardware from your grip.
   **[click]:** Run any server.
   **[click], 2[credit]:** Remove 1 tag.
-  (you get 4 alloted clicks each turn)
 `;
+const RUNNER_ALLOTTED_CLICKS = `You get 4 alloted clicks each turn.`;
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -54,6 +54,9 @@ export function createBasicActionEmbed(isCorp, includeText = true) {
       .setDescription(
         formatText(isCorp ? CORP_BASIC_ACTIONS : RUNNER_BASIC_ACTIONS)
       )
+      .setFooter({
+        text: isCorp ? CORP_ALLOTTED_CLICKS : RUNNER_ALLOTTED_CLICKS,
+      })
       .setThumbnail(image);
   } else {
     embed.setImage(image);
