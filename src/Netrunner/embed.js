@@ -36,7 +36,7 @@ export function createPrintingEmbed(printing) {
       iconURL: factionToImage(printing.attributes.faction_id),
     });
   if (printing.attributes.images) {
-    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
+    embed.setThumbnail("https://i.imgur.com/phYLyPr.png");
   }
   return embed;
 }

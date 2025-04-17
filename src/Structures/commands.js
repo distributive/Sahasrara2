@@ -12,6 +12,10 @@ import BasicActions from "./../Commands/basicActions.js";
 import Mark from "./../Commands/mark.js";
 import Side from "./../Commands/side.js";
 
+import Scoop from "./../Commands/scoop.js";
+import Accept from "./../Commands/accept.js";
+import Reject from "./../Commands/reject.js";
+
 import AliasAdd from "./../Commands/Superuser/aliasAdd.js";
 import AliasRemove from "./../Commands/Superuser/aliasRemove.js";
 import AliasView from "../Commands/Superuser/aliasView.js";
@@ -27,6 +31,10 @@ export async function init(client) {
     BasicActions,
     Mark,
     Side,
+
+    Scoop,
+    Accept,
+    Reject,
 
     AliasAdd,
     AliasRemove,

@@ -35,9 +35,7 @@ const client = new Client({
   ],
   partials: [Partials.Channel, Partials.Message],
   presence: {
-    activities: [
-      { name: "Now with slash commands!", type: ActivityType.Custom },
-    ],
+    activities: [{ name: "/help for help", type: ActivityType.Custom }],
     status: "online",
   },
 });

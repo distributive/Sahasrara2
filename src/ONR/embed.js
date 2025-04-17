@@ -22,7 +22,7 @@ function createCardEmbed(card) {
     .setColor(rarityToColor(card.rarity))
     .setTitle(card.title)
     .setDescription(cardToEmbedBody(card))
-    .setThumbnail(getCardImage(card))
+    .setThumbnail("https://i.imgur.com/phYLyPr.png")
     .setFooter({ text: cardToFooter(card) });
 }
 
