@@ -195,7 +195,7 @@ export async function fetchCards(url, mapFunc) {
       }
     })
     .catch((error) => {
-      throw new error("Failed to load cards from API: " + error);
+      throw new Error("Failed to load cards from API: " + error);
     });
 }
 
