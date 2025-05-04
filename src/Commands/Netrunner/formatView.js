@@ -1,5 +1,5 @@
 /**
- * A command for viewing a single Netrunner format.
+ * A command for viewing Netrunner formats.
  *
  * @file   This files defines the view_format command module.
  * @since  1.0.0

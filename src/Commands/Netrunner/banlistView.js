@@ -1,7 +1,7 @@
 /**
- * A command for viewing user documentation for the bot.
+ * A command for viewing card restrictions.
  *
- * @file   This files defines the help command module.
+ * @file   This files defines the view_banlist command module.
  * @since  1.0.0
  */
 

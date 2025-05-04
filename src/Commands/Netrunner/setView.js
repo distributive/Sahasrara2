@@ -1,7 +1,7 @@
 /**
- * A command for viewing user documentation for the bot.
+ * A command for viewing card sets.
  *
- * @file   This files defines the help command module.
+ * @file   This files defines the view_set command module.
  * @since  1.0.0
  */
 
