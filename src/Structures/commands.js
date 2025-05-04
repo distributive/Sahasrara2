@@ -17,6 +17,7 @@ import CycleView from "./../Commands/Netrunner/cycleView.js";
 import FormatView from "./../Commands/Netrunner/formatView.js";
 import SetView from "./../Commands/Netrunner/setView.js";
 import Search from "../Commands/Netrunner/search.js";
+import Random from "../Commands/Netrunner/random.js";
 
 import AliasAdd from "./../Commands/Superuser/aliasAdd.js";
 import AliasRemove from "./../Commands/Superuser/aliasRemove.js";
@@ -39,6 +40,7 @@ export async function init(client) {
     FormatView,
     SetView,
     Search,
+    Random,
 
     AliasAdd,
     AliasRemove,
