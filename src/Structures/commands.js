@@ -16,6 +16,7 @@ import BanlistView from "./../Commands/Netrunner/banlistView.js";
 import CycleView from "./../Commands/Netrunner/cycleView.js";
 import FormatView from "./../Commands/Netrunner/formatView.js";
 import SetView from "./../Commands/Netrunner/setView.js";
+import Search from "../Commands/Netrunner/search.js";
 
 import AliasAdd from "./../Commands/Superuser/aliasAdd.js";
 import AliasRemove from "./../Commands/Superuser/aliasRemove.js";
@@ -37,6 +38,7 @@ export async function init(client) {
     CycleView,
     FormatView,
     SetView,
+    Search,
 
     AliasAdd,
     AliasRemove,
