@@ -34,3 +34,53 @@ export function readId(input) {
     .trim() // Trim to prevent leading/trailing underscores
     .replace(/ +/g, "_"); // Convert whitespace to underscores
 }
+
+/**
+ * Bounds a string to a given length.
+ *
+ * @param {string} input The string to truncate.
+ * @param {string} maxLength The maximum length of the output string.
+ * @param {string} suffix An optional character to replace the last character in shortened strings.
+ * @return {string} The truncated string.
+ */
+export function truncate(input, maxLength, suffix) {
+  suffix = suffix ? suffix : "";
+  return input.length > maxLength
+    ? input.substring(0, maxLength - suffix.length) + suffix
+    : input;
+}
+
+/**
+ * Converts a number into its emote.
+ *
+ * @param {int} input The number to convert.
+ * @return {string} The number's emote.
+ */
+export function numberToEmote(input) {
+  switch (input) {
+    case 0:
+      return ":zero:";
+    case 1:
+      return ":one:";
+    case 2:
+      return ":two:";
+    case 3:
+      return ":three:";
+    case 4:
+      return ":four:";
+    case 5:
+      return ":five:";
+    case 6:
+      return ":six:";
+    case 7:
+      return ":seven:";
+    case 8:
+      return ":eight:";
+    case 9:
+      return ":nine:";
+    case 10:
+      return ":keycap_ten:";
+    default:
+      return ":asterisk:";
+  }
+}

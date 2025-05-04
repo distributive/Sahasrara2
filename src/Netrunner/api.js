@@ -179,7 +179,7 @@ export async function fetchCards(url, mapFunc) {
   return await fetch(url)
     .then((response) => {
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error(`Network response was not ok with url: ${url}`);
       }
       return response.json();
     })
@@ -211,7 +211,9 @@ export async function fetchCard(cardId) {
     return await fetch(`${process.env.API_URL}cards/${cardId}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(
+            `Network response was not ok with card ID: ${cardId}`
+          );
         }
         return response.json();
       })
@@ -232,6 +234,24 @@ export async function fetchCard(cardId) {
 }
 
 /**
+ * @return {string} A randomly selected card ID.
+ */
+export function getRandomCardId() {
+  const randomCard =
+    DATA.normalisedCardTitles[
+      Math.floor(Math.random() * DATA.normalisedCardTitles.length)
+    ];
+  return readId(randomCard);
+}
+
+/**
+ * @return {Object} A randomly selected card object from the API.
+ */
+export async function fetchRandomCard() {
+  return fetchCard(getRandomCardId());
+}
+
+/**
  * @param {string} printingId A printing's ID.
  * @return {Object} The printing with the given ID from the API.
  */
@@ -240,7 +260,9 @@ export async function fetchPrinting(printingId) {
     return await fetch(`${process.env.API_URL}printings/${printingId}`)
       .then((response) => {
         if (!response.ok) {
-          throw new Error("Network response was not ok");
+          throw new Error(
+            `Network response was not ok with printing ID: ${printingId}`
+          );
         }
         return response.json();
       })
@@ -594,7 +616,7 @@ export function getCardPool(cardPoolId) {
  * Gets the active card pool of the format with the given ID.
  *
  * @param {string} formatId A format's ID.
- * @return {?Object} That format's active restriction.
+ * @return {?Object} That format's active card pool.
  */
 export function getActiveCardPool(formatId) {
   return DATA.cardPools[DATA.formats[formatId].attributes.active_card_pool_id];
@@ -603,7 +625,7 @@ export function getActiveCardPool(formatId) {
 /**
  * @param {string} cardId A Netrunner card's ID.
  * @param {string} cardPoolId A card pool's ID.
- * @return {bool} The legality of the card under the restriction.
+ * @return {bool} Whether the card exists in the card pool.
  */
 export function isCardInCardPool(cardId, cardPoolId) {
   return DATA.cardPoolIdsToCardIds[cardPoolId].includes(cardId);
@@ -612,7 +634,7 @@ export function isCardInCardPool(cardId, cardPoolId) {
 /**
  * @param {string} cardSetId A Netrunner set's ID.
  * @param {string} cardPoolId A card pool's ID.
- * @return {bool} The legality of the card under the restriction.
+ * @return {bool} Whether the set exists in the card pool.
  */
 export function isCardSetInCardPool(cardSetID, cardPoolId) {
   const cardCycleId = DATA.cardSets[cardSetID].attributes.card_cycle_id;
@@ -644,6 +666,15 @@ export function getActiveRestriction(formatId) {
   return DATA.restrictions[
     DATA.formats[formatId].attributes.active_restriction_id
   ];
+}
+
+/**
+ * Returns the map of all restrictions. Do not modify.
+ *
+ * @return {Object} A mapping of all restriction IDs to their restriction.
+ */
+export function getAllRestrictions() {
+  return DATA.restrictions;
 }
 
 /**

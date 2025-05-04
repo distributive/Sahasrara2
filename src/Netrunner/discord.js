@@ -9,6 +9,42 @@
 
 /**
  * @param {string} factionId The faction's ID.
+ * @return {string} The name of the faction.
+ */
+export function factionToName(factionId) {
+  switch (factionId) {
+    case "anarch":
+      return "Anarch";
+    case "criminal":
+      return "Criminal";
+    case "shaper":
+      return "Shaper";
+
+    case "haas_bioroid":
+      return "Haas Bioroid";
+    case "jinteki":
+      return "Jinteki";
+    case "nbn":
+      return "NBN";
+    case "weyland_consortium":
+      return "Weyland";
+
+    case "neutral_runner":
+      return "Neutral Runner";
+    case "neutral_corp":
+      return "Neutral Corp";
+
+    case "adam":
+      return "Adam";
+    case "apex":
+      return "Apex";
+    case "sunny_lebeau":
+      return "Sunny";
+  }
+}
+
+/**
+ * @param {string} factionId The faction's ID.
  * @return {int} The hex code of the faction's color.
  */
 export function factionToColor(factionId) {
