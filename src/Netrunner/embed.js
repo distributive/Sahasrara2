@@ -15,6 +15,7 @@ import {
   formatText,
   legalityToSymbol,
 } from "./discord.js";
+import { toTitleCase } from "../Utility/text.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -263,10 +264,18 @@ function printingToEmbedBody(printing) {
     influence = ` • Influence: –`;
   }
 
-  let header = `**${type}${stats}${influence}**`;
+  const pronouns = printing.attributes.pronouns
+    ? `\n_${toTitleCase(printing.attributes.pronouns)}_`
+    : "";
+
+  const pronounciation = printing.attributes.pronunciation_ipa
+    ? `\n_${printing.attributes.pronunciation_ipa} (${printing.attributes.pronunciation_approximation})_`
+    : "";
+
+  let header = `**${type}${stats}${influence}**${pronouns}${pronounciation}`;
   let body = formatText(printing.attributes.text);
 
-  return header + "\n" + body;
+  return header + "\n>>> " + body;
 }
 
 /**

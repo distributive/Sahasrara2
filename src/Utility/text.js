@@ -22,6 +22,19 @@ export function normalise(input) {
 }
 
 /**
+ * Makes a string title case.
+ *
+ * @param {string} input The string to make title case.
+ * @return {string} The title case string.
+ */
+export function toTitleCase(input) {
+  return input.replace(
+    /\w\S*/g,
+    (text) => text.charAt(0).toUpperCase() + text.substring(1).toLowerCase()
+  );
+}
+
+/**
  * Normalises a string and replaces whitespace with an underscore, for use as an ID.
  *
  * @param {string} input The string to convert.
