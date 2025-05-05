@@ -194,7 +194,8 @@ export function formatText(text) {
         .replaceAll(
           "[weyland-consortium]",
           factionToEmote("weyland_consortium")
-        );
+        )
+        .replaceAll("{unique}", "♦");
 }
 
 ///////////////////////////////////////////////////////////////////////////////
