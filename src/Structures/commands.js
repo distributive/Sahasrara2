@@ -12,12 +12,16 @@ import BasicActions from "./../Commands/basicActions.js";
 import Mark from "./../Commands/mark.js";
 import Side from "./../Commands/side.js";
 
+import Search from "../Commands/Netrunner/search.js";
+import Random from "../Commands/Netrunner/random.js";
+
 import BanlistView from "./../Commands/Netrunner/banlistView.js";
 import CycleView from "./../Commands/Netrunner/cycleView.js";
 import FormatView from "./../Commands/Netrunner/formatView.js";
 import SetView from "./../Commands/Netrunner/setView.js";
-import Search from "../Commands/Netrunner/search.js";
-import Random from "../Commands/Netrunner/random.js";
+
+import GetRule from "./../Commands/Rules/getRule.js";
+import SearchRules from "./../Commands/Rules/searchRules.js";
 
 import AliasAdd from "./../Commands/Superuser/aliasAdd.js";
 import AliasRemove from "./../Commands/Superuser/aliasRemove.js";
@@ -35,12 +39,16 @@ export async function init(client) {
     Mark,
     Side,
 
+    Search,
+    Random,
+
     BanlistView,
     CycleView,
     FormatView,
     SetView,
-    Search,
-    Random,
+
+    GetRule,
+    SearchRules,
 
     AliasAdd,
     AliasRemove,

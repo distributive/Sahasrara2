@@ -19,6 +19,7 @@ import { init as initHandler } from "./handler.js";
 import { init as initEvents } from "./events.js";
 import { init as initNetrunner } from "../Netrunner/api.js";
 import { init as initONR } from "../ONR/api.js";
+import { init as initRules } from "../Rules/api.js";
 import { loadWhitelist } from "../Permissions/serverWhitelist.js";
 import { init as initDatabase } from "../Database/database.js";
 import { readBool } from "../Utility/env.js";
@@ -56,6 +57,10 @@ export async function start(config) {
   await initNetrunner();
   console.log("initialising onr api...");
   await initONR();
+
+  // Initialise comprehensive rules data
+  console.log("initialising rules api...");
+  await initRules();
 
   // Set up whitelist
   if (readBool("WHITELIST_SERVERS")) {
