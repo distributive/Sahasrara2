@@ -7,7 +7,6 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-import { logError } from "../Utility/error.js";
 import { bestMatch } from "../Utility/fuzzySearch.js";
 import { normalise } from "./../Utility/text.js";
 
@@ -23,7 +22,7 @@ const DATA = {}; // Persistent data
  * cache all ONR data. There's a fixed card pool and it's relatively small so
  * we can afford to do this.
  */
-async function init() {
+export async function init() {
   const json = await fetch(process.env.ONR_URL)
     .then((response) => {
       if (!response.ok) {
@@ -66,7 +65,7 @@ async function init() {
  * @param {string} input A string to find a card match for.
  * @return {Object} The card whose title most closely matches the input.
  */
-function getClosestCard(input) {
+export function getClosestCard(input) {
   input = normalise(input);
   const superStrings = DATA.cardTitles.filter((title) => title.includes(input)); // cardTitles has already been normalised
   const leadingStrings = superStrings.filter(
@@ -85,10 +84,6 @@ function getClosestCard(input) {
  * @param {Object} card An ONR card.
  * @return {string} The image URL of that card.
  */
-function getCardImage(card) {
+export function getCardImage(card) {
   return DATA.imageUrlTemplate.replace("{code}", card.code);
 }
-
-///////////////////////////////////////////////////////////////////////////////
-
-export { init, getClosestCard, getCardImage };
