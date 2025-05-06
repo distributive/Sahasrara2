@@ -11,6 +11,7 @@ import fs from "fs";
 import { bestMatch } from "../Utility/fuzzySearch.js";
 import { normalise, readId } from "./../Utility/text.js";
 import { loadAliases } from "./aliases.js";
+import { randomElement } from "../Utility/random.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 // Init
@@ -237,10 +238,7 @@ export async function fetchCard(cardId) {
  * @return {string} A randomly selected card ID.
  */
 export function getRandomCardId() {
-  const randomCard =
-    DATA.normalisedCardTitles[
-      Math.floor(Math.random() * DATA.normalisedCardTitles.length)
-    ];
+  const randomCard = randomElement(DATA.normalisedCardTitles);
   return readId(randomCard);
 }
 
@@ -485,7 +483,7 @@ export function getNormalisedCardTitles() {
  * @param {string} input A normalised card title.
  * @return {string} The title of that card in its original form.
  */
-export function denomraliseCardTitle(cardTitle) {
+export function denormaliseCardTitle(cardTitle) {
   return DATA.normalisedToUnnormalisedCardTitles[cardTitle];
 }
 

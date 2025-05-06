@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { randomInt } from "../Utility/random.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -22,7 +23,7 @@ const meta = {};
 
 async function execute(interaction, client) {
   const opponent = interaction.options.getUser("opponent");
-  const userIsCorp = Math.floor(Math.random() * 2) == 0;
+  const userIsCorp = randomInt(0, 2) == 0;
   const color = userIsCorp
     ? +process.env.COLOR_CORP
     : +process.env.COLOR_RUNNER;

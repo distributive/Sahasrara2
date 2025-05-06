@@ -8,6 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
+import { randomInt } from "../Utility/random.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -18,7 +19,7 @@ const data = new SlashCommandBuilder()
 const meta = {};
 
 async function execute(interaction, client) {
-  const random = Math.floor(Math.random() * 3);
+  const random = randomInt(0, 3);
   const server = random == 0 ? "HQ" : random == 1 ? "R&D" : "Archives";
   const color =
     random == 0
