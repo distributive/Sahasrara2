@@ -14,12 +14,13 @@ import {
 } from "discord.js";
 import { listAliases } from "./../../Netrunner/aliases.js";
 import {
-  denomraliseCardTitle,
+  denormaliseCardTitle,
   fetchPrinting,
   getClosestCard,
   searchNormalisedCardTitles,
 } from "./../../Netrunner/api.js";
 import { factionToColor } from "./../../Netrunner/discord.js";
+import { normalise } from "../../Utility/text.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -83,7 +84,7 @@ async function autocomplete(interaction) {
   const focusedValue = normalise(interaction.options.getFocused());
   const validChoices = searchNormalisedCardTitles(focusedValue)
     .slice(0, 25)
-    .map((title) => ({ name: denomraliseCardTitle(title), value: title }));
+    .map((title) => ({ name: denormaliseCardTitle(title), value: title }));
   await interaction.respond(validChoices);
 }
 

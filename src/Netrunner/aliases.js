@@ -10,6 +10,7 @@
 import fs from "fs";
 import YAML from "yaml";
 import { normalise } from "./../Utility/text.js";
+import { randomElement } from "../Utility/random.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -48,39 +49,84 @@ export function saveAliases() {
  *
  * @param {string} alias A string to map to a specific card.
  * @param {string} cardName A card's name (not verified).
+ * @param {bool} canGroup If true, and there's already a card with this alias, create a list of aliases for that card.
  * @return {bool} Was the assignment successful (if not, there was already an alias with that string).
  */
-export function addAlias(alias, cardName) {
-  if (ALIASES.aliases[alias]) {
-    return false;
-  } else {
+export function addAlias(alias, cardName, canGroup) {
+  // If that alias does not exist, create it
+  if (!ALIASES.aliases[alias]) {
     ALIASES.aliases[alias] = cardName;
     return true;
   }
-}
 
-/**
- * Adds a new alias-card mapping to the cached aliases regardless of if there is already one with that alias.
- *
- * @param {string} alias A string to map to a specific card.
- * @param {string} cardName A card's name (not verified).
- */
-export function forceAddAlias(alias, cardName) {
-  ALIASES.aliases[alias] = cardName;
+  // If you cannot group aliases, fail
+  if (!canGroup) {
+    return false;
+  }
+
+  // If the alias already contains only the card, fail
+  if (ALIASES.aliases[alias] == cardName) {
+    return false;
+  }
+
+  // If the alias is currently a singleton, make it a list
+  if (typeof ALIASES.aliases[alias] == "string") {
+    ALIASES.aliases[alias] = [ALIASES.aliases[alias]];
+  }
+  // If not, and the alias already contains the card, fail
+  else if (ALIASES.aliases[alias].includes(cardName)) {
+    return false;
+  }
+
+  // Add the alias
+  ALIASES.aliases[alias].push(cardName);
+  return true;
 }
 
 /**
  * Adds a new alias-card mapping to the cached aliases.
  *
  * @param {string} alias The alias to remove.
+ * @param {?string} cardName An optional card name. If specified, only remove that card from the alias.
  * @return {bool} Was the deletion successful (if not, there was no alias with that string).
  */
-export function removeAlias(alias) {
-  if (ALIASES.aliases[alias]) {
+export function removeAlias(alias, cardName) {
+  // If the alias does not exist, fail
+  if (!ALIASES.aliases[alias]) {
+    return false;
+  }
+
+  // If a card is specified, check if it exists to be deleted
+  if (cardName) {
+    // If the alias is a singleton, and that singleton is the card, delete the entry
+    if (ALIASES.aliases[alias] == cardName) {
+      delete ALIASES.aliases[alias];
+      return true;
+    }
+    // If not, and the alias is not a list, fail
+    else if (typeof ALIASES.aliases[alias] == "string") {
+      return false;
+    }
+    // Search the alias group for the card and succeed or fail based on the result
+    else {
+      const index = ALIASES.aliases[alias].indexOf(cardName);
+      if (index > -1) {
+        ALIASES.aliases[alias].splice(index, 1);
+        if (ALIASES.aliases[alias].length == 1) {
+          ALIASES.aliases[alias] = ALIASES.aliases[alias][0]; // The alias is now a singleton - simplify it
+        } else if (ALIASES.aliases[alias].length == 0) {
+          delete ALIASES.aliases[alias]; // The alias group is empty - delete it
+        }
+        return true;
+      } else {
+        return false;
+      }
+    }
+  }
+  // Otherwise, just delete the entire entry
+  else {
     delete ALIASES.aliases[alias];
     return true;
-  } else {
-    return false;
   }
 }
 
@@ -95,7 +141,11 @@ export function removeAlias(alias) {
  */
 export function applyAlias(input) {
   const alias = ALIASES.aliases[normalise(input).replace(/[-_]/g, " ")];
-  return alias ? alias : input;
+  return alias
+    ? typeof alias == "string"
+      ? alias
+      : randomElement(alias)
+    : input;
 }
 
 /**
@@ -105,7 +155,10 @@ export function applyAlias(input) {
  * @return {string[]} An array of all aliases for that card.
  */
 export function listAliases(cardName) {
-  return Object.keys(ALIASES.aliases).filter(
-    (alias) => ALIASES.aliases[alias] == cardName
-  );
+  return Object.keys(ALIASES.aliases).filter((alias) => {
+    const cards = ALIASES.aliases[alias];
+    return typeof cards == "string"
+      ? cards == cardName
+      : cards.includes(cardName);
+  });
 }

@@ -9,9 +9,8 @@
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
 import { fetchPrinting, fetchRandomCard } from "../../Netrunner/api.js";
-import { factionToEmote } from "../../Netrunner/discord.js";
 import { createPrintingEmbed } from "../../Netrunner/embed.js";
-import { truncate } from "../../Utility/text.js";
+import { randomElement } from "../../Utility/random.js";
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +49,7 @@ async function execute(interaction, client) {
       .setColor(+process.env.COLOR_ERROR);
     await interaction.reply({ embeds: [embed] });
   } else {
-    const printingId = results[Math.floor(Math.random() * results.length)];
+    const printingId = randomElement(results);
     const printing = await fetchPrinting(printingId);
     const embed = createPrintingEmbed(printing);
     await interaction.reply({ embeds: [embed] });

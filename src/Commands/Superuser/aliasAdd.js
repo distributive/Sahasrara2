@@ -14,7 +14,7 @@ import {
 } from "discord.js";
 import { addAlias, applyAlias, saveAliases } from "../../Netrunner/aliases.js";
 import {
-  denomraliseCardTitle,
+  denormaliseCardTitle,
   searchNormalisedCardTitles,
 } from "../../Netrunner/api.js";
 import { normalise } from "../../Utility/text.js";
@@ -37,6 +37,11 @@ const data = new SlashCommandBuilder()
       .setDescription("the card the alias will map to")
       .setRequired(true)
       .setAutocomplete(true)
+  )
+  .addBooleanOption((option) =>
+    option
+      .setName("can_group")
+      .setDescription("whether the alias can be a group alias")
   );
 
 const meta = {
@@ -58,7 +63,8 @@ async function execute(interaction, client) {
 
   const alias = interaction.options.getString("alias");
   const cardName = interaction.options.getString("card");
-  const success = addAlias(alias, cardName);
+  const canGroup = interaction.options.getBoolean("can_group");
+  const success = addAlias(alias, cardName, canGroup);
 
   let embed;
   if (success) {
@@ -70,9 +76,7 @@ async function execute(interaction, client) {
   } else {
     embed = new EmbedBuilder()
       .setTitle("Alias already exists!")
-      .setDescription(
-        `\`${alias}\` is already an alias for \`${applyAlias(alias)}\`.`
-      )
+      .setDescription(`\`${alias}\` is already an alias for that card.`)
       .setColor(+process.env.COLOR_ERROR);
   }
 
@@ -83,7 +87,7 @@ async function autocomplete(interaction) {
   const focusedValue = normalise(interaction.options.getFocused());
   const validChoices = searchNormalisedCardTitles(focusedValue)
     .slice(0, 25)
-    .map((title) => ({ name: denomraliseCardTitle(title), value: title }));
+    .map((title) => ({ name: denormaliseCardTitle(title), value: title }));
   await interaction.respond(validChoices);
 }
 
