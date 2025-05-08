@@ -35,7 +35,6 @@ async function execute(interaction, client) {
   }
 
   const queryURI = encodeURIComponent(query);
-  const searchURL = `${process.env.SEARCH_URL}?search=${queryURI}`;
   const results = await fetchResults(
     `${process.env.SEARCH_URL}simple_api/?search=${queryURI}`
   );
@@ -44,7 +43,7 @@ async function execute(interaction, client) {
     const embed = new EmbedBuilder()
       .setTitle(":wastebasket: No results found!")
       .setDescription(
-        `You can check the [syntax guide](${process.env.SEARCH_URL}syntax) for potential errors in your query.`
+        `Query: \`${query}\`\nYou can check the [syntax guide](${process.env.SEARCH_URL}syntax) for potential errors.`
       )
       .setColor(+process.env.COLOR_ERROR);
     await interaction.reply({ embeds: [embed] });

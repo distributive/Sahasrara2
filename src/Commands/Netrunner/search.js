@@ -28,7 +28,7 @@ const data = new SlashCommandBuilder()
 const meta = {};
 
 async function execute(interaction, client) {
-  const query = interaction.options.getString("search_query");
+  const query = interaction.options.getString("search_query").trim();
   const queryURI = encodeURIComponent(query);
   const searchURL = `${process.env.SEARCH_URL}?search=${queryURI}`;
   const results = await fetchResults(
@@ -40,7 +40,7 @@ async function execute(interaction, client) {
     const embed = new EmbedBuilder()
       .setTitle(":wastebasket: No results found!")
       .setDescription(
-        `You can check the [syntax guide](${process.env.SEARCH_URL}syntax) for potential errors in your query.`
+        `Query: \`${query}\`\nYou can check the [syntax guide](${process.env.SEARCH_URL}syntax) for potential errors.`
       )
       .setColor(+process.env.COLOR_ERROR);
     await interaction.reply({ embeds: [embed] });
@@ -73,7 +73,7 @@ async function execute(interaction, client) {
   const embed = new EmbedBuilder()
     .setTitle(":mag_right: Results")
     .setURL(searchURL)
-    .setDescription(lines.join("\n"))
+    .setDescription(`Query: \`${query}\`\n${lines.join("\n")}`)
     .setColor(+process.env.COLOR_INFO);
 
   await interaction.deferReply({});
