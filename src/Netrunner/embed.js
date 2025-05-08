@@ -268,9 +268,13 @@ function printingToEmbedBody(printing) {
     ? `\n_${toTitleCase(printing.attributes.pronouns)}_`
     : "";
 
-  const pronounciation = printing.attributes.pronunciation_ipa
-    ? `\n_${printing.attributes.pronunciation_ipa} (${printing.attributes.pronunciation_approximation})_`
-    : "";
+  const pronounciation =
+    printing.attributes.pronunciation_ipa &&
+    printing.attributes.pronunciation_ipa != "-"
+      ? `\n_${printing.attributes.pronunciation_ipa} (${printing.attributes.pronunciation_approximation})_`
+      : printing.attributes.pronunciation_ipa
+      ? `\n_${printing.attributes.pronunciation_approximation}_`
+      : "";
 
   let header = `**${type}${stats}${influence}**${pronouns}${pronounciation}`;
   let body = formatText(printing.attributes.text);
