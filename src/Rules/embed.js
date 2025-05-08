@@ -29,7 +29,7 @@ export function createRuleEmbed(rule) {
             return `- \`${rule.nr}\` - ${truncate(rule.text, 50, "…")}`;
           })
           .join("\n");
-  const titleText = rule.nr + (shortRule ? ` ${rule.text}` : "");
+  const titleText = rule.nr + (shortRule ? ` - ${rule.text}` : "");
   const descriptionText = shortRule ? children : rule.text + children;
 
   const embed = new EmbedBuilder()
