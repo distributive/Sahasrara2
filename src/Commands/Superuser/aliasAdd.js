@@ -76,7 +76,7 @@ async function execute(interaction, client) {
   } else {
     embed = new EmbedBuilder()
       .setTitle("Alias already exists!")
-      .setDescription(`\`${alias}\` is already an alias for that card.`)
+      .setDescription(`\`${alias}\` is already an alias for a card.`)
       .setColor(+process.env.COLOR_ERROR);
   }
 
