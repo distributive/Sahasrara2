@@ -8,7 +8,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 
 import { EmbedBuilder, SlashCommandBuilder } from "discord.js";
-import { normalise, numberToEmote, truncate } from "../../Utility/text.js";
+import { normalise, truncate } from "../../Utility/text.js";
 import {
   fetchCard,
   getActiveRestriction,
@@ -64,13 +64,9 @@ async function execute(interaction, client) {
     for (const cardId of restriction.attributes.verdicts.banned) {
       const card = await fetchCard(cardId);
       if (card.attributes.side_id == "corp") {
-        banned[0].push(
-          `:no_entry_sign: ${truncate(card.attributes.title, 30, "…")}`
-        );
+        banned[0].push(`• ${truncate(card.attributes.title, 30, "…")}`);
       } else {
-        banned[1].push(
-          `:no_entry_sign: ${truncate(card.attributes.title, 30, "…")}`
-        );
+        banned[1].push(`• ${truncate(card.attributes.title, 30, "…")}`);
       }
     }
   }
@@ -80,13 +76,9 @@ async function execute(interaction, client) {
     for (const cardId of restriction.attributes.verdicts.restricted) {
       const card = await fetchCard(cardId);
       if (card.attributes.side_id == "corp") {
-        restricted[0].push(
-          `:unicorn: ${truncate(card.attributes.title, 30, "…")}`
-        );
+        restricted[0].push(`• ${truncate(card.attributes.title, 30, "…")}`);
       } else {
-        restricted[1].push(
-          `:unicorn: ${truncate(card.attributes.title, 30, "…")}`
-        );
+        restricted[1].push(`• ${truncate(card.attributes.title, 30, "…")}`);
       }
     }
   }
@@ -102,14 +94,14 @@ async function execute(interaction, client) {
           ufc[0][count] = [];
         }
         ufc[0][count].push(
-          `${numberToEmote(count)} ${truncate(card.attributes.title, 30, "…")}`
+          `\`${count}\` ${truncate(card.attributes.title, 30, "…")}`
         );
       } else {
         if (!ufc[1][count]) {
           ufc[1][count] = [];
         }
         ufc[1][count].push(
-          `${numberToEmote(count)} ${truncate(card.attributes.title, 30, "…")}`
+          `\`${count}\` ${truncate(card.attributes.title, 30, "…")}`
         );
       }
     }
@@ -120,9 +112,9 @@ async function execute(interaction, client) {
     for (const cardId of restriction.attributes.verdicts.global_penalty) {
       const card = await fetchCard(cardId);
       if (card.attributes.side_id == "corp") {
-        penalty[0].push(`:one: ${truncate(card.attributes.title, 30, "…")}`);
+        penalty[0].push(`\`1\` ${truncate(card.attributes.title, 30, "…")}`);
       } else {
-        penalty[1].push(`:one: ${truncate(card.attributes.title, 30, "…")}`);
+        penalty[1].push(`\`1\` ${truncate(card.attributes.title, 30, "…")}`);
       }
     }
   }
@@ -138,14 +130,14 @@ async function execute(interaction, client) {
           points[0][count] = [];
         }
         points[0][count].push(
-          `${numberToEmote(count)} ${truncate(card.attributes.title, 30, "…")}`
+          `\`${count}\` ${truncate(card.attributes.title, 30, "…")}`
         );
       } else {
         if (!points[1][count]) {
           points[1][count] = [];
         }
         points[1][count].push(
-          `${numberToEmote(count)} ${truncate(card.attributes.title, 30, "…")}`
+          `\`${count}\` ${truncate(card.attributes.title, 30, "…")}`
         );
       }
     }
@@ -157,7 +149,7 @@ async function execute(interaction, client) {
   // Banned
   if (banned[0].length || banned[1].length) {
     fields.push({
-      name: "Banned",
+      name: "Banned :no_entry_sign:",
       value: "_ _",
     });
     fields.push({
@@ -175,7 +167,7 @@ async function execute(interaction, client) {
   // Restricted
   if (restricted[0].length || restricted[1].length) {
     fields.push({
-      name: "Restricted",
+      name: "Restricted :unicorn:",
       value: "_ _",
     });
     fields.push({
@@ -208,7 +200,7 @@ async function execute(interaction, client) {
       });
     });
     fields.push({
-      name: "Universal faction cost",
+      name: "Universal faction cost :hash:",
       value: "_ _",
     });
     fields.push({
@@ -226,7 +218,7 @@ async function execute(interaction, client) {
   // Global penalty
   if (penalty[0].length || penalty[1].length) {
     fields.push({
-      name: "Global Penalty",
+      name: "Global Penalty :asterisk:",
       value: "_ _",
     });
     fields.push({
@@ -259,7 +251,7 @@ async function execute(interaction, client) {
       });
     });
     fields.push({
-      name: "Points",
+      name: "Points :hash:",
       value: "_ _",
     });
     fields.push({
