@@ -273,6 +273,7 @@ async function execute(interaction, client) {
   }
   const embed = new EmbedBuilder()
     .setTitle(":octagonal_sign: " + restriction.attributes.name)
+    .setURL("https://nullsignal.games/players/supported-formats/")
     .setDescription(descriptionText)
     .setColor(+process.env.COLOR_INFO)
     .addFields(fields);
