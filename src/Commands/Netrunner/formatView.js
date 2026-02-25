@@ -41,7 +41,7 @@ const DESCRIPTIONS = {
 
 const data = new SlashCommandBuilder()
   .setName("view_format")
-  .setDescription("view a specific Netrunner format")
+  .setDescription("displays a specific Netrunner format")
   .addStringOption((option) =>
     option
       .setName("format_name")

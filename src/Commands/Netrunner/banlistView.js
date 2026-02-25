@@ -20,7 +20,7 @@ import {
 
 const data = new SlashCommandBuilder()
   .setName("view_banlist")
-  .setDescription("view a specific banlist")
+  .setDescription("displays a specific banlist")
   .addStringOption((option) =>
     option
       .setName("banlist_name")

@@ -21,7 +21,7 @@ import { factionToName, factionToEmote } from "../../Netrunner/discord.js";
 
 const data = new SlashCommandBuilder()
   .setName("view_set")
-  .setDescription("view the cards in a specific Netrunner set")
+  .setDescription("displays the cards in a specific Netrunner set")
   .addStringOption((option) =>
     option
       .setName("set_name")

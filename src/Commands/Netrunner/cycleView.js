@@ -19,7 +19,7 @@ import {
 
 const data = new SlashCommandBuilder()
   .setName("view_cycle")
-  .setDescription("view a specific cycle")
+  .setDescription("displays a specific cycle")
   .addStringOption((option) =>
     option
       .setName("cycle_name")

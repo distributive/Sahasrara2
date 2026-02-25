@@ -16,7 +16,7 @@ import { randomElement } from "../../Utility/random.js";
 
 const data = new SlashCommandBuilder()
   .setName("random")
-  .setDescription("select a random Netrunner cards")
+  .setDescription("selects a random Netrunner card")
   .addStringOption((option) =>
     option.setName("search_query").setDescription("the search query")
   );

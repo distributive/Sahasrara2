@@ -16,7 +16,7 @@ import { createRuleEmbed } from "../../Rules/embed.js";
 
 const data = new SlashCommandBuilder()
   .setName("search_rule")
-  .setDescription("search the Netrunner Comprehensive Rules document")
+  .setDescription("searches the Netrunner Comprehensive Rules document")
   .addStringOption((option) =>
     option.setName("query").setDescription("the search query").setRequired(true)
   );

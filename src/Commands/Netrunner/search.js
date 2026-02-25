@@ -17,7 +17,7 @@ import { truncate } from "../../Utility/text.js";
 
 const data = new SlashCommandBuilder()
   .setName("search")
-  .setDescription("search for Netrunner cards")
+  .setDescription("searches for Netrunner cards")
   .addStringOption((option) =>
     option
       .setName("search_query")
