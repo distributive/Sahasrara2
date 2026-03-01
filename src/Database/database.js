@@ -16,10 +16,10 @@ let DB; // Persistent database connection
 
 /**
  * Database schema:
- * 
+ *
  * IsONR [0: false, 1: true]
  * QueryType [0: text, 1: image, 2: flavour, 3: legality]
- * 
+ *
   CREATE TABLE Query (
     ID INT NOT NULL AUTO_INCREMENT,
     Query VARCHAR(255) NOT NULL,
@@ -34,6 +34,10 @@ let DB; // Persistent database connection
  */
 
 export async function init() {
+  if (!process.env.DB_HOST || !process.env.DB_USER) {
+    logError("Database data not defined. Skipping.")
+  }
+
   DB = mysql.createConnection({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
@@ -45,6 +49,8 @@ export async function init() {
   DB.connect(function (err) {
     if (err) {
       logError(err);
+      console.error("There was an error loading the database. Database functionality has been disabled.\n");
+      DB = null; // Ensure future attempts to use the database aren't attempted
     }
   });
 }
@@ -67,6 +73,12 @@ export function logQuery(
   isOnr,
   queryType
 ) {
+  // Exit early if the database was not loaded on startup
+  if (!DB) {
+    return;
+  }
+
+  // Create the SQL command
   const sql = "INSERT INTO Query SET ?";
   const values = {
     Query: query.substring(0, 255),
