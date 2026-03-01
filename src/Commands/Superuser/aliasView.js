@@ -69,7 +69,7 @@ async function execute(interaction, client) {
       .setColor(factionToColor(latestPrinting.attributes.faction_id))
       .setTitle("Aliases!")
       .setDescription(description)
-      .setThumbnail(latestPrinting.attributes.images.nrdb_classic.medium);
+      .setThumbnail(latestPrinting.attributes.images.nrdb_classic.large);
   } else {
     embed = new EmbedBuilder()
       .setTitle("No aliases found!")

@@ -77,7 +77,7 @@ export function createPrintingFlavourEmbed(printing) {
     .setURL(url)
     .setDescription(flavourText);
   if (printing.attributes.images) {
-    embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
   }
   return embed;
 }
@@ -171,7 +171,7 @@ export function createPrintingBanlistEmbed(printing, formatId) {
     .setURL(url)
     .setDescription(restrictionHistory);
   if (printing.attributes.images) {
-    embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
   }
   return embed;
 }
@@ -195,7 +195,7 @@ export function createPrintingIndexOutOfBoundsEmbed(card, printing) {
     .setURL(url)
     .setDescription(error);
   if (printing.attributes.images) {
-    embed.setThumbnail(printing.attributes.images.nrdb_classic.medium);
+    embed.setThumbnail(printing.attributes.images.nrdb_classic.large);
   }
   return embed;
 }
