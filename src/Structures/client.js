@@ -35,10 +35,6 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
   ],
   partials: [Partials.Channel, Partials.Message],
-  presence: {
-    activities: [{ name: "/help for help", type: ActivityType.Custom }],
-    status: "online",
-  },
 });
 
 client.commands = new Collection();
@@ -76,5 +72,12 @@ export async function start(config) {
   console.log("loading events...");
   await initEvents(client);
 
+  // Start running the bot
   await client.login(process.env.TOKEN);
+
+  // Set the bot status
+  client.user.setPresence({
+    activities: [{ name: process.env.STATUS ? process.env.STATUS : "/help for help", type: ActivityType.Custom }],
+    status: "online",
+  });
 }
