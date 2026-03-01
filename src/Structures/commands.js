@@ -11,6 +11,7 @@ import Help from "./../Commands/help.js";
 import BasicActions from "./../Commands/basicActions.js";
 import Mark from "./../Commands/mark.js";
 import Side from "./../Commands/side.js";
+import About from "./../Commands/about.js";
 
 import Search from "../Commands/Netrunner/search.js";
 import Random from "../Commands/Netrunner/random.js";
@@ -35,6 +36,7 @@ import WhitelistViewServers from "../Commands/Superuser/whitelistServerView.js";
 export async function init(client) {
   const commands = [
     Help,
+    About,
     BasicActions,
     Mark,
     Side,
