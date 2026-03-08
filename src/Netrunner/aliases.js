@@ -140,7 +140,7 @@ export function removeAlias(alias, cardName) {
  * @return {string} The dealiased string.
  */
 export function applyAlias(input) {
-  const alias = ALIASES.aliases[normalise(input).replace(/[-_]/g, " ")];
+  const alias = ALIASES.aliases[normalise(input).replace(/[-_]/g, " ").replace(/[!?.,';:]/g, "")];
   return alias
     ? typeof alias == "string"
       ? alias
