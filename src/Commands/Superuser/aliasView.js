@@ -35,6 +35,8 @@ const data = new SlashCommandBuilder()
       .setAutocomplete(true)
   );
 
+const meta = {};
+
 async function execute(interaction, client) {
   const cardName = interaction.options.getString("card");
   const closestCard = await getClosestCard(cardName);
@@ -73,4 +75,4 @@ async function autocomplete(interaction) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, execute, autocomplete };
+export default { data, meta, execute, autocomplete };
