@@ -27,7 +27,6 @@ import { normalise } from "../../Utility/text.js";
 const data = new SlashCommandBuilder()
   .setName("view_aliases")
   .setDescription("displays all aliases of a given card")
-  .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
   .addStringOption((option) =>
     option
       .setName("card")
@@ -36,23 +35,7 @@ const data = new SlashCommandBuilder()
       .setAutocomplete(true)
   );
 
-const meta = {
-  hideFromHelp: true,
-};
-
 async function execute(interaction, client) {
-  // Verify superuser status - TODO: create permissions module
-  if (interaction.user.id != process.env.SUPER_USER) {
-    const embed = new EmbedBuilder()
-      .setTitle("Invalid permissions!")
-      .setDescription(
-        `You do not have permission to use this command, but you are seeing it because Discord does not allow any commands to be hidden from admnistrators.`
-      )
-      .setColor(+process.env.COLOR_ERROR);
-    await interaction.reply({ embeds: [embed], ephemeral: true });
-    return;
-  }
-
   const cardName = interaction.options.getString("card");
   const closestCard = await getClosestCard(cardName);
   const latestPrinting = await fetchPrinting(
