@@ -161,5 +161,5 @@ export function listAliases(cardName) {
     return typeof cards == "string"
       ? cards.toLowerCase() == cardName
       : cards.map(c => c.toLowerCase()).includes(cardName);
-  });
+  }).sort();
 }
