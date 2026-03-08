@@ -155,10 +155,11 @@ export function applyAlias(input) {
  * @return {string[]} An array of all aliases for that card.
  */
 export function listAliases(cardName) {
+  cardName = cardName.toLowerCase();
   return Object.keys(ALIASES.aliases).filter((alias) => {
     const cards = ALIASES.aliases[alias];
     return typeof cards == "string"
-      ? cards == cardName
-      : cards.includes(cardName);
+      ? cards.toLowerCase() == cardName
+      : cards.map(c => c.toLowerCase()).includes(cardName);
   });
 }
