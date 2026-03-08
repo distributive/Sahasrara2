@@ -73,4 +73,4 @@ async function autocomplete(interaction) {
 
 ///////////////////////////////////////////////////////////////////////////////
 
-export default { data, meta, execute, autocomplete };
+export default { data, execute, autocomplete };
