@@ -78,7 +78,7 @@ async function execute(interaction, client) {
     if (
       format.attributes.active_restriction_id !=
       format.attributes.restriction_ids[
-        format.attributes.restriction_ids.length
+        format.attributes.restriction_ids.length - 1
       ]
     ) {
       const latestRestriction = api.getRestriction(
@@ -106,38 +106,43 @@ async function execute(interaction, client) {
           .map((id) => api.getCardSet(id))
           .reverse();
         const formattedSets = relevantSets
-          .map((set) => `- ${set.attributes.name}`)
+          .map((set) => `  - ${set.attributes.name}`)
           .join("\n");
         return relevantSets.length > 1
-          ? `${formattedCycle}\n${formattedSets}`
-          : formattedCycle;
+          ? `- ${formattedCycle}\n${formattedSets}`
+          : `- ${formattedCycle}`;
       });
 
-    // Split the list roughly in thirds
-    const characterLength = cycles.reduce(
-      (length, cycle) => length + cycle.length,
-      0
-    );
+    // If the list is long, split it roughly in thirds
+    let cardPoolTextA, cardPoolTextB, cardPoolTextC;
+    if (cycles.length > 5) {
+      const characterLength = cycles.reduce(
+        (length, cycle) => length + cycle.length,
+        0
+      );
 
-    let i = 0;
-    let cumLength = 0;
-    for (; i < cycles.length && cumLength < characterLength / 3; i++) {
-      cumLength += cycles[i].length;
-    }
-    const thirdIndex = i;
-    for (; i < cycles.length && cumLength < (characterLength * 2) / 3; i++) {
-      cumLength += cycles[i].length;
-    }
-    const twoThirdsIndex = i;
+      let i = 0;
+      let cumLength = 0;
+      for (; i < cycles.length && cumLength < characterLength / 3; i++) {
+        cumLength += cycles[i].length;
+      }
+      const thirdIndex = i;
+      for (; i < cycles.length && cumLength < (characterLength * 2) / 3; i++) {
+        cumLength += cycles[i].length;
+      }
+      const twoThirdsIndex = i;
 
-    const chunks = [
-      cycles.slice(0, thirdIndex),
-      cycles.slice(thirdIndex, twoThirdsIndex),
-      cycles.slice(twoThirdsIndex, cycles.length),
-    ];
-    const [cardPoolTextA, cardPoolTextB, cardPoolTextC] = chunks.map((chunk) =>
-      chunk.join("\n")
-    );
+      const chunks = [
+        cycles.slice(0, thirdIndex),
+        cycles.slice(thirdIndex, twoThirdsIndex),
+        cycles.slice(twoThirdsIndex, cycles.length),
+      ];
+      [cardPoolTextA, cardPoolTextB, cardPoolTextC] = chunks.map((chunk) =>
+        chunk.join("\n")
+      );
+    } else {
+      cardPoolTextA = cycles.join("\n");
+    }
 
     // Build the embed
     const titleText = format.attributes.name;
@@ -145,23 +150,29 @@ async function execute(interaction, client) {
 
     embed = new EmbedBuilder()
       .setTitle(`:card_box:  ${titleText}`)
-      .setDescription(descriptionText)
-      .addFields({
-        name: "Legal Sets",
-        value: cardPoolTextA,
-        inline: true,
-      })
-      .addFields({
-        name: "_ _",
-        value: cardPoolTextB,
-        inline: true,
-      })
-      .addFields({
-        name: "_ _",
-        value: cardPoolTextC,
-        inline: true,
-      })
       .setColor(+process.env.COLOR_INFO);
+
+    if (cardPoolTextB != null) {
+      embed
+        .setDescription(descriptionText)
+        .addFields({
+          name: "__Legal Sets__",
+          value: cardPoolTextA,
+          inline: true,
+        })
+        .addFields({
+          name: "_ _",
+          value: cardPoolTextB,
+          inline: true,
+        })
+        .addFields({
+          name: "_ _",
+          value: cardPoolTextC,
+          inline: true,
+        });
+    } else {
+      embed.setDescription(`${descriptionText} \n\n __Legal Sets__\n${cardPoolTextA}`);
+    }
   }
   // No format specified
   else {
