@@ -41,6 +41,7 @@ async function execute(interaction, client) {
       : restrictionId == "active_eternal"
       ? getActiveRestriction("eternal")
       : getRestriction(restrictionId);
+  const isCurrentStartup = restriction.id == getActiveRestriction("startup").id // Temp solution to display the Startup agenda limit (it's not currently in the API)
 
   if (!restriction) {
     const embed = new EmbedBuilder()
@@ -270,6 +271,9 @@ async function execute(interaction, client) {
   let descriptionText = `**Start date:** ${restriction.attributes.date_start}`;
   if (restriction.attributes.point_limit != null) {
     descriptionText += `\n**Point limit:** ${restriction.attributes.point_limit}`;
+  }
+  if (isCurrentStartup) { // Temp solution to gap in API data
+    descriptionText += `\n**Agenda limit:** Corp decks can only contain a maximum of 3 agendas with printed agenda points worth 3 or more.`
   }
   const embed = new EmbedBuilder()
     .setTitle(":octagonal_sign: " + restriction.attributes.name)
