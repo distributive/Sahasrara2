@@ -299,9 +299,9 @@ async function autocomplete(interaction, client) {
     name: restriction.attributes.name,
     value: restriction.id,
   }));
-  validChoices.unshift({ name: "Current Eternal", value: "active_eternal" });
-  validChoices.unshift({ name: "Current Startup", value: "active_startup" });
-  validChoices.unshift({ name: "Current Standard", value: "active_standard" });
+  if ("current eternal".includes(focusedValue)) { validChoices.unshift({ name: "Current Eternal", value: "active_eternal" }); }
+  if ("current startup".includes(focusedValue)) { validChoices.unshift({ name: "Current Startup", value: "active_startup" }); }
+  if ("current standard".includes(focusedValue)) { validChoices.unshift({ name: "Current Standard", value: "active_standard" }); }
   await interaction.respond(validChoices);
 }
 
