@@ -26,7 +26,7 @@ const STANDARD_DESCRIPTION =
 const STARTUP_DESCRIPTION = `Startup is a limited-cardpool format, intended for new players taking their first steps into Organized Play as well as experienced players who want a slimmed-down deckbuilding challenge.
 
 The cardpool for Startup consists of:
-- System Gateway and System Update 2021
+- System Gateway and Elevation
 - The most recent complete Null Signal narrative cycle
 - All sets in the current incomplete Null Signal narrative cycle (if any)`;
 const ETERNAL_DESCRIPTION =
